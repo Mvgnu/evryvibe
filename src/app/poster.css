@@ -1,0 +1,586 @@
+/* ==========================================================================
+   Generated poster artwork.
+   The poster is a self-contained dark print object: it keeps its own ground
+   and ink in both site themes. Information density follows the width of the
+   artwork container (thumbnail tile, card flyer, full hero flyer).
+   ========================================================================== */
+
+.artwork {
+  --mono: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+  container-type: inline-size;
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  padding: 0;
+  isolation: isolate;
+  background: #0e0e0e;
+  color: #f1f0ea;
+}
+.artwork-fallback {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+}
+.artwork .artwork-cover {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0e0e0e;
+}
+
+/* ----------------------------------------------------------- families */
+
+.poster {
+  --pg: #0e0e0e;
+  --pi: #f1f0ea;
+  --pa: #d8ff00;
+  --pb: #f1f0ea;
+  --pm: #5f5f5a;
+  --pd: #171717;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--pg);
+  color: var(--pi);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+}
+/* A hairline in the poster's own ink keeps it separate from a dark page. */
+.poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--pi) 16%, transparent);
+  pointer-events: none;
+}
+.fam-hard {
+  --pg: #0d0807;
+  --pi: #f4ece8;
+  --pa: #ff2d1c;
+  --pb: #f4ece8;
+  --pm: #6c4640;
+  --pd: #1a0f0d;
+}
+.fam-acid {
+  --pg: #0b0c06;
+  --pi: #f3f3e4;
+  --pa: #ffe500;
+  --pb: #f3f3e4;
+  --pm: #5c5a2a;
+  --pd: #16160b;
+}
+.fam-dub {
+  --pg: #0e151c;
+  --pi: #e2eaf0;
+  --pa: #86b3d4;
+  --pb: #e2eaf0;
+  --pm: #465a6b;
+  --pd: #15202a;
+}
+.fam-house {
+  --pg: #160f09;
+  --pi: #f7ecde;
+  --pa: #ff9a1f;
+  --pb: #f7ecde;
+  --pm: #6c5237;
+  --pd: #22170e;
+}
+.fam-electro {
+  --pg: #051115;
+  --pi: #e0f6fa;
+  --pa: #1fd8ff;
+  --pb: #e0f6fa;
+  --pm: #1f4c57;
+  --pd: #0a1c22;
+}
+.fam-breaks {
+  --pg: #110910;
+  --pi: #f7ebf2;
+  --pa: #ff3d8b;
+  --pb: #ffcf2e;
+  --pm: #5e3a4e;
+  --pd: #1d101a;
+}
+.fam-trance {
+  --pg: #0e0a1b;
+  --pi: #eee9fd;
+  --pa: #a68aff;
+  --pb: #eee9fd;
+  --pm: #45396e;
+  --pd: #171129;
+}
+.fam-ambient {
+  --pg: #131311;
+  --pi: #e8e5dc;
+  --pa: #cfc7b3;
+  --pb: #e8e5dc;
+  --pm: #57554d;
+  --pd: #1b1b18;
+}
+
+/* -------------------------------------------------------------- motif */
+
+.poster-motif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.poster-motif .fa {
+  fill: var(--pa);
+}
+.poster-motif .fb {
+  fill: var(--pb);
+}
+.poster-motif .fi {
+  fill: var(--pi);
+}
+.poster-motif .fm {
+  fill: var(--pm);
+}
+.poster-motif .fg {
+  fill: var(--pg);
+}
+.poster-motif .fd {
+  fill: var(--pd);
+}
+.poster-motif .sa,
+.poster-motif .sb,
+.poster-motif .si,
+.poster-motif .sm {
+  fill: none;
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+  stroke-linecap: square;
+}
+.poster-motif .sa {
+  stroke: var(--pa);
+}
+.poster-motif .sb {
+  stroke: var(--pb);
+}
+.poster-motif .si {
+  stroke: var(--pi);
+}
+.poster-motif .sm {
+  stroke: var(--pm);
+}
+.poster-motif .hair {
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+.poster-motif .thick {
+  stroke-width: 1.6;
+}
+.poster-motif .fat {
+  stroke-width: 3;
+}
+
+/* Registration marks sit just inside the corners. */
+.poster-reg {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  display: none;
+  z-index: 2;
+  background:
+    linear-gradient(var(--pi), var(--pi)) center / 1px 100% no-repeat,
+    linear-gradient(var(--pi), var(--pi)) center / 100% 1px no-repeat;
+  opacity: 0.55;
+}
+.reg-tl {
+  top: 2.2cqi;
+  left: 2.2cqi;
+}
+.reg-tr {
+  top: 2.2cqi;
+  right: 2.2cqi;
+}
+.reg-bl {
+  bottom: 2.2cqi;
+  left: 2.2cqi;
+}
+.reg-br {
+  bottom: 2.2cqi;
+  right: 2.2cqi;
+}
+
+/* --------------------------------------------------------- base layout */
+
+.poster-body {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 7cqi;
+}
+.poster-head,
+.poster-foot,
+.poster-dow,
+.poster-address,
+.poster-count,
+.poster-families {
+  font-family: var(--mono);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.poster-head,
+.poster-title,
+.poster-lineup-card,
+.poster-lineup-hero,
+.poster-foot,
+.poster-address,
+.poster-date-time,
+.poster-tile-time {
+  display: none;
+}
+
+/* Thumbnail: a calendar tile over the motif. */
+.poster-tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 3cqi;
+  line-height: 1;
+}
+.poster-day {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 44cqi;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  background: var(--pg);
+  padding: 0 2cqi 1cqi 0;
+}
+.poster-dow {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5cqi;
+  font-size: max(10px, 9.5cqi);
+  font-weight: 700;
+  background: var(--pg);
+  padding: 0 1cqi 1cqi;
+}
+.poster-dow > span:first-child {
+  color: var(--pa);
+}
+
+/* Titles, names and labels over the motif sit on the poster ground, like
+   type printed on tape. */
+.poster-title,
+.poster-lineup-card > span,
+.poster-lineup-hero > span,
+.poster-lineup-hero > p,
+.poster-foot > span,
+.poster-head > span,
+.poster-address {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.poster-title {
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.005em;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  hyphens: manual;
+  text-wrap: balance;
+}
+.poster-title,
+.poster-lineup-card,
+.poster-lineup-hero,
+.poster-address {
+  max-width: 100%;
+}
+
+/* ---------------------------------------------------------------- card */
+
+@container (min-width: 200px) {
+  .poster-body {
+    padding: 6cqi;
+    gap: 4cqi;
+  }
+  .poster-reg {
+    display: block;
+  }
+  .poster-tile {
+    display: none;
+  }
+  .poster-head {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 3cqi;
+    font-size: max(10px, 3.6cqi);
+    line-height: 1.2;
+    padding-bottom: 2.4cqi;
+    border-bottom: 1px solid color-mix(in srgb, var(--pi) 40%, transparent);
+  }
+  .poster-head > span {
+    background: var(--pg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .poster-mark {
+    display: none;
+  }
+  .poster-sound {
+    color: var(--pa);
+  }
+  .poster-date {
+    margin-left: auto;
+    flex: none;
+  }
+  .poster-title {
+    display: block;
+    font-size: calc(var(--title-card) * 1cqi);
+    margin-top: 1cqi;
+  }
+  .poster-title {
+    background: none;
+  }
+  .poster-lineup-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em 0;
+    font-weight: 700;
+    font-size: max(12px, 5cqi);
+    line-height: 1.05;
+    color: var(--pa);
+  }
+  .poster-lineup-card > span {
+    background: var(--pg);
+    padding: 0 0.12em 0 0;
+  }
+  .poster-lineup-card > span:not(:last-child)::after {
+    content: " /";
+    color: var(--pi);
+    white-space: pre;
+  }
+  .poster-more {
+    color: var(--pi);
+  }
+  .poster-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 1cqi;
+    margin-top: auto;
+    max-width: 100%;
+    font-size: max(10px, 3.3cqi);
+    line-height: 1.3;
+  }
+  .poster-foot > span {
+    background: var(--pg);
+    padding: 0.1em 0.3em 0.1em 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .poster-genres {
+    display: none;
+  }
+  .poster-address {
+    display: block;
+    font-size: max(11px, 3.6cqi);
+    line-height: 1.45;
+    text-transform: none;
+    background: var(--pg);
+  }
+  .poster-count {
+    display: flex;
+    align-items: baseline;
+    gap: 2cqi;
+    font-size: max(11px, 3.4cqi);
+  }
+  .poster-count b {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 16cqi;
+    line-height: 0.8;
+    color: var(--pa);
+  }
+  .poster-families {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4cqi;
+    font-size: max(10px, 3cqi);
+  }
+  .poster-chip {
+    padding: 0.35em 0.6em;
+    background: var(--pa);
+    color: var(--pg);
+    font-weight: 700;
+  }
+}
+
+/* ---------------------------------------------------------------- hero */
+
+@container (min-width: 300px) {
+  .poster-hero .poster-body {
+    padding: 6.5cqi;
+    gap: 3.4cqi;
+  }
+  .poster-hero .poster-head {
+    font-size: max(11px, 2.9cqi);
+  }
+  .poster-hero .poster-mark {
+    display: inline;
+    font-weight: 700;
+  }
+  .poster-hero .poster-sound {
+    margin-right: auto;
+  }
+  .poster-hero .poster-date {
+    display: none;
+  }
+  .poster-hero .poster-tile {
+    display: flex;
+    gap: 2.5cqi;
+    margin-top: 1cqi;
+  }
+  .poster-hero .poster-day {
+    font-size: 24cqi;
+  }
+  .poster-hero .poster-dow {
+    font-size: max(11px, 3.8cqi);
+    gap: 1cqi;
+    padding-top: 0.4cqi;
+  }
+  .poster-hero .poster-tile-time {
+    display: block;
+  }
+  .poster-hero .poster-title {
+    font-size: calc(var(--title-hero) * 1cqi);
+    margin-top: 0;
+  }
+  .poster-hero .poster-lineup-card {
+    display: none;
+  }
+  .poster-hero .poster-lineup-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.08em;
+    font-weight: 800;
+    font-size: calc(var(--name-hero) * 1cqi);
+    line-height: 0.95;
+    color: var(--pa);
+  }
+  .poster-hero .poster-lineup-hero > span,
+  .poster-hero .poster-lineup-hero > p {
+    background: var(--pg);
+    padding: 0 0.1em 0 0;
+    margin: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .poster-hero .lineup-solo {
+    font-weight: 900;
+    line-height: 0.86;
+  }
+  .poster-hero .lineup-many > p {
+    font-weight: 700;
+    line-height: 1.12;
+  }
+  .poster-hero .poster-foot {
+    font-size: max(11px, 2.9cqi);
+  }
+  .poster-hero .poster-genres {
+    display: inline;
+    color: var(--pa);
+  }
+}
+
+/* ----------------------------------------------------------- cancelled */
+
+/* A fine ground-colour keyline separates white title ink from light motif
+   shapes without hiding or cropping the artwork. */
+.poster-event .poster-title {
+  -webkit-text-stroke: 0.06em var(--pg);
+  paint-order: stroke fill;
+}
+
+.is-cancelled .poster-motif {
+  filter: grayscale(1);
+  opacity: 0.28;
+}
+.is-cancelled .poster-lineup-card,
+.is-cancelled .poster-lineup-hero,
+.is-cancelled .poster-sound,
+.is-cancelled .poster-genres,
+.is-cancelled .poster-dow > span:first-child {
+  color: color-mix(in srgb, var(--pi) 55%, transparent);
+}
+.is-cancelled .poster-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.07em;
+}
+/* Cancellation is a solid bar across the top edge. The body starts below
+   it, so title and lineup stay fully readable. */
+.poster {
+  --stamp-h: max(16px, 14cqi);
+}
+.poster-stamp {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--stamp-h);
+  display: flex;
+  align-items: center;
+  padding: 0 5cqi;
+  /* Fixed, not the page token: the poster keeps its own palette in both themes. */
+  background: #ff4a2e;
+  color: #0a0a0a;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: max(11px, 9cqi);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.is-cancelled .poster-body {
+  top: var(--stamp-h);
+}
+.is-cancelled .reg-tl,
+.is-cancelled .reg-tr {
+  display: none;
+}
+@container (min-width: 200px) {
+  .poster {
+    --stamp-h: max(22px, 9cqi);
+  }
+  .poster-stamp {
+    padding: 0 6cqi;
+    font-size: max(12px, 5.6cqi);
+  }
+}
+@container (min-width: 300px) {
+  .poster-hero {
+    --stamp-h: max(28px, 8cqi);
+  }
+  .poster-hero .poster-stamp {
+    padding: 0 6.5cqi;
+    font-size: max(14px, 5cqi);
+  }
+}
+
+/* ================================================================ tile */
+
+/* A square motif beside venue and DJ names. */
+.poster.sound-tile {
+  position: relative;
+  inset: auto;
+  aspect-ratio: 1;
+  width: 100%;
+}

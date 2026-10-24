@@ -1,0 +1,11 @@
+[Unit]
+Description=Collect EVRYVIBE enabled sources overnight in Europe/Berlin
+
+[Timer]
+OnCalendar=*-*-* 01:00:00 Europe/Berlin
+RandomizedDelaySec=15min
+Persistent=false
+Unit=evryvibe-collect.service
+
+[Install]
+WantedBy=timers.target

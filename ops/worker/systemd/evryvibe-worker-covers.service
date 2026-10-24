@@ -1,0 +1,23 @@
+[Unit]
+Description=EVRYVIBE Instagram cover refresh on OVH worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ploi
+Group=ploi
+WorkingDirectory=/home/ploi/evryvibe-worker/current
+Environment=PATH=/usr/bin:/bin
+ExecStart=/home/ploi/evryvibe-worker/current/ops/worker/run.sh covers
+TimeoutStartSec=infinity
+TimeoutStopSec=45
+KillMode=control-group
+MemoryHigh=1536M
+MemoryMax=2G
+UMask=0077
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/ploi/evryvibe-worker/shared
+NoNewPrivileges=true
+

@@ -1,0 +1,26 @@
+[Unit]
+Description=EVRYVIBE authenticated remote MCP
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=evryvibe
+Group=evryvibe
+WorkingDirectory=/srv/evryvibe/current
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+ExecStart=/usr/local/bin/node --env-file=/srv/evryvibe/shared/.env --import tsx src/mcp/http-server.ts
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+MemoryHigh=192M
+MemoryMax=256M
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/evryvibe/shared/.local/mcp
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=EVRYVIBE private database and state backup
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/sbin/evryvibe-backup
+UMask=0077
+TimeoutStartSec=infinity

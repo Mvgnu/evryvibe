@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "image_suppressed" boolean DEFAULT false NOT NULL;

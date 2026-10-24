@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:5438:5432"
+    environment:
+      POSTGRES_USER: evryvibe
+      POSTGRES_PASSWORD: evryvibe
+      POSTGRES_DB: evryvibe
+    volumes:
+      - evryvibe_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evryvibe -d evryvibe"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  evryvibe_pg:

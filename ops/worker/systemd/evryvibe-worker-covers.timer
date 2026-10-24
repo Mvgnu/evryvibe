@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh EVRYVIBE Instagram covers on OVH worker
+
+[Timer]
+OnCalendar=*-*-* 19:30:00 Europe/Berlin
+RandomizedDelaySec=10min
+Persistent=false
+Unit=evryvibe-worker-covers.service
+
+[Install]
+WantedBy=timers.target

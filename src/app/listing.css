@@ -1,0 +1,333 @@
+/* ==========================================================================
+   Listing rows: the programme as dense, legible rows grouped by venue-local
+   day (home, city and month pages) or with their own date (venue, DJ).
+   One tap target per row: the title link stretches over the whole row.
+   The row layout follows the width of its list, not the viewport.
+   ========================================================================== */
+
+.event-days {
+  display: grid;
+  gap: 28px;
+}
+.event-day-heading {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0 8px;
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+}
+.event-day-heading h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin: 0;
+  min-width: 0;
+}
+/* "Heute" or the weekday big, the date beside it in mono. */
+.event-day-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.event-day-heading h3 > time {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.event-day-count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ev-rows {
+  container: rows / inline-size;
+}
+
+/* Narrow lists (phones, side columns): thumbnail left, text stacked. */
+.ev-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "art when tags"
+    "art title title"
+    "art lineup lineup"
+    "art place place";
+  align-items: start;
+  column-gap: 14px;
+  row-gap: 3px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ev-row:hover {
+  background: linear-gradient(var(--surface), var(--surface)) no-repeat center /
+    calc(100% + 16px) 100%;
+}
+.ev-row-art {
+  grid-area: art;
+  width: 100%;
+}
+.ev-row-art .artwork {
+  aspect-ratio: 1;
+}
+/* At thumbnail size the poster is pure motif: the row already says when. */
+.ev-row-art .poster-tile,
+.ev-row-art .poster-stamp {
+  display: none;
+}
+.ev-row-when {
+  grid-area: when;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.ev-row-when time {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+.ev-row-when .cancelled {
+  padding: 1px 6px;
+  font-size: 11px;
+}
+.ev-row-time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.ev-row-date {
+  color: var(--ink);
+}
+.ev-row-title {
+  grid-area: title;
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.ev-row-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.ev-row-title a:hover,
+.ev-row:hover .ev-row-title a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.ev-row-title a:focus-visible {
+  outline: none;
+}
+.ev-row-title a:focus-visible::after {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.ev-row-lineup {
+  grid-area: lineup;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.ev-row-lineup span {
+  font-weight: 500;
+  color: var(--muted);
+}
+.ev-row-place {
+  grid-area: place;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.ev-row-city {
+  color: var(--muted);
+}
+.ev-row-city::before {
+  content: " · ";
+}
+.ev-row-tags {
+  grid-area: tags;
+  justify-self: end;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  max-width: 100%;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ev-row-sound {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ev-row-listen {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+}
+.ev-row-listen .ui-icon {
+  font-size: 14px;
+  color: var(--signal);
+  align-self: center;
+}
+.ev-row.is-cancelled .ev-row-title {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+.ev-row.is-cancelled .ev-row-art {
+  opacity: 0.45;
+}
+
+/* Wide lists: a programme line — time, thumbnail, title and line-up, place,
+   sound. Rows without a line-up stay one line high. */
+@container rows (min-width: 760px) {
+  .ev-row {
+    grid-template-columns:
+      minmax(5.5rem, 7.5rem) 64px minmax(0, 1fr) minmax(0, 15rem)
+      minmax(0, 11rem);
+    grid-template-areas:
+      "when art title place tags"
+      "when art lineup place tags";
+    grid-template-rows: auto 1fr;
+    column-gap: 20px;
+    row-gap: 4px;
+    padding: 14px 0;
+  }
+  .ev-row-when {
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 3px;
+    font-size: 13px;
+  }
+  .ev-row-when time {
+    flex-direction: column;
+  }
+  .ev-row-time {
+    color: var(--ink);
+  }
+  .ev-row-date + .ev-row-time {
+    color: var(--muted);
+  }
+  .ev-row-title {
+    margin: 0;
+    font-size: 25px;
+  }
+  .ev-row-lineup {
+    font-size: 15px;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+  .ev-row-place {
+    padding-top: 3px;
+    font-size: 14px;
+  }
+  .ev-row-city {
+    display: block;
+  }
+  .ev-row-city::before {
+    content: none;
+  }
+  .ev-row-tags {
+    justify-self: stretch;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 4px;
+  }
+}
+@container rows (min-width: 1100px) {
+  .ev-row {
+    grid-template-columns:
+      7.5rem 64px minmax(0, 1fr) minmax(0, 17rem)
+      minmax(0, 12rem);
+  }
+}
+
+/* Wide screens: the day sits in its own sticky column, like a printed
+   programme; the rows keep their full width beside it. */
+@media (min-width: 1100px) {
+  .event-days {
+    gap: 36px;
+  }
+  .event-day {
+    display: grid;
+    grid-template-columns: minmax(150px, 12%) minmax(0, 1fr);
+    column-gap: 28px;
+    align-items: start;
+  }
+  .event-day-heading {
+    top: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 0;
+    background: none;
+  }
+  .event-day-heading h3 {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .event-day .ev-rows {
+    border-top: 1px solid var(--ink);
+  }
+  .event-day .ev-row:first-child {
+    padding-top: 12px;
+  }
+}
+
+@media (max-width: 700px) {
+  .event-days {
+    gap: 20px;
+  }
+  .event-day-name {
+    font-size: 24px;
+  }
+  .ev-row {
+    column-gap: 12px;
+    padding: 12px 0;
+  }
+  .ev-row-title {
+    font-size: 20px;
+  }
+}

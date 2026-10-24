@@ -1,0 +1,27 @@
+[Unit]
+Description=EVRYVIBE web
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=evryvibe
+Group=evryvibe
+WorkingDirectory=/srv/evryvibe/current
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+ExecStart=/usr/local/bin/node --dns-result-order=ipv4first --env-file=/srv/evryvibe/shared/.env node_modules/next/dist/bin/next start --hostname localhost --port 3300
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+MemoryHigh=640M
+MemoryMax=768M
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/evryvibe/shared /srv/evryvibe/current/.next
+
+[Install]
+WantedBy=multi-user.target

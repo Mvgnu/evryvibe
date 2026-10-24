@@ -1,0 +1,83 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789996105319,
+      "tag": "0000_lame_rockslide",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789997381811,
+      "tag": "0001_venue_collection",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789999052773,
+      "tag": "0002_yummy_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790150132000,
+      "tag": "0003_retire_captured_images",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790154000000,
+      "tag": "0004_event_image_slide",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791215769617,
+      "tag": "0005_large_maestro",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791235339741,
+      "tag": "0006_nebulous_sunfire",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791917124750,
+      "tag": "0007_soundcloud_profiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791917621115,
+      "tag": "0008_event_cover_source_and_reconciliation",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791917627220,
+      "tag": "0009_backfill_event_image_source",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791919191829,
+      "tag": "0010_reconciliation_claim_snapshot",
+      "breakpoints": true
+    }
+  ]
+}

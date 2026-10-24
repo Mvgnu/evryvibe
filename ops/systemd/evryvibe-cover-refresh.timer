@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh public Instagram cover URLs overnight
+
+[Timer]
+OnCalendar=*-*-* 22:30:00 Europe/Berlin
+RandomizedDelaySec=10min
+Persistent=false
+Unit=evryvibe-cover-refresh.service
+
+[Install]
+WantedBy=timers.target

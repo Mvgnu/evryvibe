@@ -1,0 +1,14 @@
+[Unit]
+Description=Back up EVRYVIBE worker login and retry state
+
+[Service]
+Type=oneshot
+User=ploi
+Group=ploi
+ExecStart=/home/ploi/evryvibe-worker/current/ops/worker/backup.sh
+UMask=0077
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/ploi/evryvibe-worker/shared /home/ploi/evryvibe-worker/backups
+NoNewPrivileges=true
+

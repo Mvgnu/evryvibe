@@ -1,0 +1,1 @@
+ALTER TABLE "reconciliation_tasks" ADD COLUMN "claimed" jsonb;

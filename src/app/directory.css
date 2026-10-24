@@ -1,0 +1,430 @@
+/* ==========================================================================
+   DJ directory (/djs) and genre pages (/genres, /genres/[slug]).
+   Hero, counts, crumbs and section headings reuse the programme-page
+   vocabulary of cities.css; DJ rows and the genre index live here.
+   A DJ row is one link (the name, stretched over the row) plus at most one
+   action: "Anhören", which opens SoundCloud's player under the row.
+   ========================================================================== */
+
+/* Without crumbs above it, the hero's rule would double the header's. */
+.directory-hero:first-child {
+  border-top: 0;
+  padding-top: 8px;
+}
+/* The filter panel sits inside the page shell, which already has the inset. */
+.directory-filters {
+  margin-inline: 0;
+  margin-bottom: 8px;
+}
+.directory-notes {
+  margin-top: 12px;
+}
+.directory-filter {
+  margin: 8px 0 4px;
+}
+.directory-section {
+  padding-top: 4px;
+  scroll-margin-top: 16px;
+}
+.directory-cap,
+.directory-footnote {
+  max-width: 72ch;
+  margin-top: 24px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.directory-more {
+  margin-top: 48px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+/* ------------------------------------------------------------- groups */
+
+.dj-list {
+  container: djlist / inline-size;
+  display: grid;
+  gap: 32px;
+}
+.dj-group-heading {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0 8px;
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+}
+.dj-group-heading h2,
+.dj-group-heading h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.dj-group-heading h3 {
+  font-size: 24px;
+}
+.dj-group-count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Wide lists: the group label sits in its own sticky column, like the day
+   column of the event programme. */
+@container djlist (min-width: 1000px) {
+  .dj-group {
+    display: grid;
+    grid-template-columns: minmax(150px, 12%) minmax(0, 1fr);
+    column-gap: 28px;
+    align-items: start;
+  }
+  .dj-group-heading {
+    top: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 0;
+    background: none;
+  }
+  .dj-group .dj-rows {
+    border-top: 1px solid var(--ink);
+  }
+}
+
+/* --------------------------------------------------------------- rows */
+
+.dj-rows {
+  container: djrows / inline-size;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dj-row {
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 64px;
+}
+/* Narrow lists: tile, name and sound beside the action, then where/when. */
+.dj-row-main {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "art name action"
+    "art sound action"
+    "art where where"
+    "art when when";
+  align-items: start;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 12px 0;
+}
+.dj-row-main:hover {
+  background: linear-gradient(var(--surface), var(--surface)) no-repeat center /
+    calc(100% + 16px) 100%;
+}
+.dj-row-art {
+  grid-area: art;
+  width: 100%;
+  padding-top: 2px;
+}
+.dj-row-name {
+  grid-area: name;
+  margin: 0;
+  padding-top: 2px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.dj-row-name a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.dj-row-name a:hover,
+.dj-row-main:hover .dj-row-name a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.dj-row-name a:focus-visible {
+  outline: none;
+}
+.dj-row-name a:focus-visible::after {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.dj-row-sound {
+  grid-area: sound;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.dj-row-where,
+.dj-row-when {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+.dj-row-where {
+  grid-area: where;
+  margin-top: 4px;
+}
+.dj-row-when {
+  grid-area: when;
+  color: var(--muted);
+}
+/* The one action sits above the stretched name link. */
+.dj-row-action {
+  grid-area: action;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+}
+/* An open player closes its row with an ink rule. */
+.dj-row:has(.listen-toggle.is-open) {
+  border-bottom-color: var(--ink);
+}
+.dj-row .listen-panel {
+  padding: 0 0 16px;
+}
+.dj-row .listen-panel:not([hidden]) {
+  display: block;
+}
+
+@container djrows (min-width: 640px) {
+  .dj-row-main {
+    grid-template-columns: 48px minmax(0, 1.15fr) minmax(0, 1fr) 8.5rem;
+    grid-template-areas:
+      "art name where action"
+      "art sound when action";
+    column-gap: 20px;
+    row-gap: 4px;
+    padding: 12px 0;
+  }
+  .dj-row-art {
+    grid-row: 1 / span 2;
+    align-self: center;
+    padding-top: 0;
+  }
+  .dj-row-name {
+    font-size: 24px;
+    align-self: end;
+  }
+  .dj-row-sound {
+    align-self: start;
+  }
+  .dj-row-where {
+    align-self: end;
+    margin-top: 0;
+  }
+  .dj-row-where,
+  .dj-row-when {
+    font-size: 14px;
+  }
+  .dj-row-action {
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+  .dj-row .listen-panel {
+    max-width: 820px;
+    padding: 0 0 18px 68px;
+  }
+}
+@container djrows (min-width: 1000px) {
+  .dj-row-main {
+    grid-template-columns:
+      48px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr)
+      8.5rem;
+    grid-template-areas:
+      "art name where when action"
+      "art sound where when action";
+  }
+  .dj-row-where,
+  .dj-row-when {
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+}
+
+/* ---------------------------------------------------------- genre page */
+
+.genre-body {
+  display: grid;
+  gap: 48px;
+  margin-top: 16px;
+}
+.genre-djs,
+.genre-nights {
+  min-width: 0;
+  scroll-margin-top: 16px;
+}
+.genre-djs > .pf-label-row,
+.genre-nights > .pf-label-row {
+  margin-bottom: 4px;
+}
+.genre-nights .ev-rows {
+  margin-top: 0;
+}
+/* Stacked, the group headings say it all; the label stays for screen
+   readers and lines up with the nights column only side by side. */
+@media (max-width: 1099px) {
+  .genre-djs > .pf-label-row {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (min-width: 1100px) {
+  .genre-body {
+    grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
+    column-gap: clamp(40px, 4vw, 72px);
+    align-items: start;
+  }
+  /* The nights column is in view beside the DJs. */
+  .genre-jump {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------- genre index */
+
+.genre-jumps {
+  padding-bottom: 12px;
+}
+
+.genre-index {
+  columns: 3 300px;
+  column-gap: 40px;
+  border-top: 1px solid var(--ink);
+}
+.genre-family {
+  break-inside: avoid;
+  padding: 16px 0 28px;
+  scroll-margin-top: 16px;
+}
+.genre-family-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.genre-family-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 28px;
+}
+.genre-family-head h2 .chip-swatch {
+  width: 12px;
+  height: 12px;
+}
+.genre-family-head a {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.genre-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.genre-rows li {
+  border-bottom: 1px solid var(--line);
+}
+.genre-rows a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 0;
+}
+.genre-rows a:hover {
+  text-decoration: none;
+}
+.genre-rows a:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.genre-rows strong {
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.genre-row-counts {
+  display: flex;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.genre-row-counts > span:first-child {
+  color: var(--ink);
+}
+
+@media (max-width: 700px) {
+  .dj-group-heading h2 {
+    font-size: 24px;
+  }
+  .dj-group-heading h3 {
+    font-size: 22px;
+  }
+  .dj-row-name {
+    font-size: 20px;
+  }
+  .genre-index {
+    columns: 1;
+  }
+  .genre-family {
+    padding-bottom: 20px;
+  }
+}
+
+/* DJ page: links to the genre pages of the DJ's sound. */
+.pf-more {
+  margin-top: 48px;
+}

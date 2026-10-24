@@ -1,0 +1,1420 @@
+/*
+ * EVRYVIBE — club programme.
+ * Foundation only: tokens, base type, page chrome and shared components.
+ * Posters live in poster.css, event/venue/DJ pages in detail.css, the
+ * day-grouped listing rows in listing.css and city pages in cities.css.
+ *
+ * Order: 1 tokens · 2 base · 3 page frame · 4 header · 5 notices · 6 buttons
+ * and chips · 7 home · 9 shared content · 10 external media · 11 empty states
+ * · 12 legal · 13 footer · 14 motion.
+ */
+
+/* 1 ─ Tokens. Dark is the default; light is an explicit, stored choice. */
+:root {
+  --lime: #d8ff00;
+  --on-lime: #0a0a0a;
+  --gutter: clamp(16px, 5vw, 72px);
+  --max-width: 1440px;
+  /* Side margin that grows to centre a 1440px column on wide screens. */
+  --page-inset: max(var(--gutter), calc((100% - var(--max-width)) / 2));
+  --font-display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  --font-body: "DM Sans", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+:root,
+:root[data-theme="dark"] {
+  --paper: #0a0a0a;
+  --surface: #141414;
+  --raised: #1d1d1d;
+  --ink: #f1f1ec;
+  --muted: #a2a29c;
+  --line: #333331;
+  --danger: #ff5c3d;
+  --focus: #d8ff00;
+  /* Lime where it reads (dark), ink where lime would vanish (light). */
+  --signal: #d8ff00;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --paper: #f3f4f4;
+  --surface: #e8eaea;
+  --raised: #ffffff;
+  --ink: #0a0a0a;
+  --muted: #595d5f;
+  --line: #c6cacb;
+  --danger: #c02a10;
+  --focus: #0a0a0a;
+  --signal: #0a0a0a;
+  color-scheme: light;
+}
+
+/* 2 ─ Base. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+main {
+  flex: 1 0 auto;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+h3 {
+  font-weight: 700;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  border-radius: 0;
+}
+a,
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+::selection {
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.ui-icon {
+  display: inline-block;
+  vertical-align: -0.15em;
+  flex-shrink: 0;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 20;
+  padding: 12px 16px;
+  background: var(--lime);
+  color: var(--on-lime);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.skip-link:focus {
+  top: 12px;
+}
+/* Small mono label: dates, counts, field names. Never below 11px. */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.live-dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+}
+.lime-period {
+  color: var(--signal);
+}
+
+/* 3 ─ Page frame. One inset for every top-level block. */
+.site-header,
+.site-footer,
+.demo-notice,
+.discovery-head,
+.filter-panel,
+.listing-section,
+.detail-shell,
+.page-empty {
+  margin-inline: var(--page-inset);
+}
+.detail-shell {
+  padding: 24px 0 80px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.back-link:hover {
+  color: var(--ink);
+}
+
+/* 4 ─ Header: wordmark · nav · preferences, one row at every width. */
+.site-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "brand nav prefs";
+  align-items: center;
+  column-gap: 32px;
+  min-height: 72px;
+  border-bottom: 1px solid var(--ink);
+}
+.wordmark {
+  grid-area: brand;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.wordmark:hover {
+  text-decoration: none;
+}
+.brand-star {
+  display: inline-flex;
+  font-size: 0.8em;
+  color: var(--signal);
+}
+.site-nav {
+  grid-area: nav;
+  display: flex;
+  gap: 4px;
+}
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.site-nav a:hover {
+  color: var(--ink);
+}
+.site-nav a[aria-current="page"] {
+  background: var(--lime);
+  color: var(--on-lime);
+  text-decoration: none;
+}
+.preferences {
+  grid-area: prefs;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.language-switch {
+  display: flex;
+  align-items: center;
+}
+.language-switch a,
+.theme-switch,
+.media-settings-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.language-switch a {
+  color: var(--muted);
+}
+.language-switch a:hover {
+  color: var(--ink);
+}
+.language-switch a[aria-current] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+.theme-switch,
+.media-settings-button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+.theme-switch:hover,
+.media-settings-button:hover {
+  border-color: var(--ink);
+}
+.media-settings-button {
+  padding: 0 12px;
+  white-space: nowrap;
+}
+.media-settings-button .ui-icon,
+.theme-switch .ui-icon {
+  font-size: 18px;
+}
+.theme-sun,
+:root[data-theme="light"] .theme-moon {
+  display: inline-flex;
+}
+.theme-moon,
+:root[data-theme="light"] .theme-sun {
+  display: none;
+}
+@media (max-width: 700px) {
+  /* One row on phones: the wordmark leads home, so "DJs" and "Cities" stay
+     as tabs and the listing starts higher. */
+  .site-header {
+    column-gap: 6px;
+    min-height: 56px;
+  }
+  .wordmark {
+    font-size: 24px;
+  }
+  .site-nav {
+    justify-content: flex-end;
+    gap: 0;
+  }
+  .site-nav a {
+    justify-content: center;
+    min-width: 44px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+  .site-nav a[data-section="nights"] {
+    display: none;
+  }
+  .preferences {
+    gap: 2px;
+  }
+  /* Phones show only the language to switch to. */
+  .language-switch a[aria-current] {
+    display: none;
+  }
+  .media-settings-button {
+    width: 44px;
+    padding: 0;
+  }
+  .settings-text {
+    display: none;
+  }
+}
+/* Narrow phones keep the full wordmark and both tabs by dropping the star. */
+@media (max-width: 420px) {
+  .wordmark .brand-star {
+    display: none;
+  }
+}
+@media (max-width: 374px) {
+  .wordmark {
+    font-size: 20px;
+  }
+}
+/* The smallest phones keep one of DJs and Cities: the current section's tab,
+   or DJs when neither is current. The other stays a footer link. */
+@media (max-width: 359px) {
+  .site-header {
+    column-gap: 4px;
+  }
+  .wordmark {
+    font-size: 22px;
+  }
+  .site-nav:has(a[data-section="cities"][aria-current]) a[data-section="djs"],
+  .site-nav:not(:has(a[data-section="cities"][aria-current]))
+    a[data-section="cities"] {
+    display: none;
+  }
+}
+
+/* 5 ─ Notices. */
+.demo-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.demo-notice .live-dot {
+  align-self: center;
+  background: var(--danger);
+}
+.demo-notice > span:last-child {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+}
+
+/* 6 ─ Buttons and chips. Solid ink by default; lime only for the page's one
+   primary action or the current state. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+.button:hover {
+  text-decoration: none;
+  background: var(--muted);
+  border-color: var(--muted);
+}
+.button-outline {
+  background: transparent;
+  color: var(--ink);
+}
+.button-outline:hover {
+  background: var(--raised);
+  border-color: var(--ink);
+}
+.button-primary {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.button-primary:hover {
+  border-color: #c3e600;
+  background: #c3e600;
+  color: var(--on-lime);
+}
+/* Compact secondary control: website, share, source, profile links. */
+.chip-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.chip-button:hover {
+  border-color: var(--ink);
+  text-decoration: none;
+}
+.chip-button .ui-icon {
+  font-size: 14px;
+}
+@media (max-width: 700px) {
+  .chip-button {
+    gap: 4px;
+    padding: 0 10px;
+    letter-spacing: 0.02em;
+  }
+}
+/* Filter chip: a full 44px tap target. */
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.chip:hover {
+  border-color: var(--ink);
+  text-decoration: none;
+}
+.chip-count {
+  font-weight: 500;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.chip[aria-current],
+.chip.is-active {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.chip[aria-current] .chip-count,
+.chip.is-active .chip-count {
+  color: var(--on-lime);
+}
+/* Sound swatch: the accent colour of that family's posters. */
+.chip-swatch {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  background: var(--pa, #d8ff00);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 25%, transparent);
+}
+.chip[aria-current] .chip-swatch {
+  box-shadow: 0 0 0 1px var(--on-lime);
+}
+
+/* 7 ─ Home: what's on, filters as single rows of chips, then the listing. */
+.discovery-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+  align-items: end;
+  gap: 16px 40px;
+  padding: 28px 0 20px;
+}
+.home-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 20px;
+  row-gap: 4px;
+}
+.home-heading h1 {
+  font-size: clamp(44px, 5.4vw, 80px);
+  font-weight: 900;
+  line-height: 0.9;
+}
+.home-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.search-form {
+  display: flex;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.search-form:focus-within {
+  border-color: var(--ink);
+}
+.search-input {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-left: 14px;
+  color: var(--muted);
+}
+.search-input .ui-icon {
+  font-size: 18px;
+}
+.search-input input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+}
+.search-input input:focus-visible {
+  outline: none;
+}
+.search-input input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.search-submit {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.search-submit:hover {
+  background: var(--raised);
+}
+.filter-panel {
+  display: grid;
+  gap: 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.filter-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+}
+.filter-row.has-before {
+  grid-template-columns: 70px auto minmax(0, 1fr);
+  column-gap: 6px;
+}
+.filter-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+/* One row that scrolls sideways; it never wraps into a wall of chips. */
+.chip-scroll {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 3px 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-padding-inline: 4px;
+}
+.chip-scroll::-webkit-scrollbar {
+  display: none;
+}
+.chip-scroll > li {
+  flex: none;
+}
+.filter-row:has(.chip-scroll > li:nth-child(6)) .chip-scroll {
+  mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+}
+/* Mouse users get a thin scrollbar to drag; touch users swipe. */
+@media (hover: hover) and (pointer: fine) {
+  .chip-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+    padding-bottom: 6px;
+  }
+  .chip-scroll::-webkit-scrollbar {
+    display: block;
+    height: 4px;
+  }
+  .chip-scroll::-webkit-scrollbar-thumb {
+    background: var(--line);
+  }
+}
+.date-pick {
+  position: relative;
+}
+.date-pick > summary {
+  list-style: none;
+}
+.date-pick > summary::-webkit-details-marker {
+  display: none;
+}
+.chip-caret {
+  font-size: 14px;
+  transition: transform 120ms ease;
+}
+.date-pick[open] .chip-caret {
+  transform: rotate(180deg);
+}
+.date-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  width: min(360px, calc(100vw - 2 * var(--gutter)));
+  padding: 12px;
+  border: 1px solid var(--ink);
+  background: var(--raised);
+}
+.date-days {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.date-days a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.date-days a:hover {
+  border-color: var(--ink);
+  text-decoration: none;
+}
+.date-days a > span {
+  font-weight: 500;
+  color: var(--muted);
+}
+.date-days a[aria-current] {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.date-days a[aria-current] > span {
+  color: var(--on-lime);
+}
+.date-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.date-form label {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+}
+.date-form label > span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.date-form input {
+  min-height: 44px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+}
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin-bottom: 16px;
+}
+.active-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.active-filters ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.active-filters ul a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  position: relative;
+}
+.active-filters ul a:hover {
+  background: var(--raised);
+  text-decoration: none;
+}
+.active-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.city-page-link {
+  margin-top: 20px;
+}
+.city-page-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.listing-section {
+  padding: 16px 0 80px;
+  scroll-margin-top: 16px;
+}
+.more-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 28px;
+}
+.more-link {
+  min-width: min(100%, 360px);
+  /* The remaining count drops to a second line on the narrowest phones. */
+  flex-wrap: wrap;
+  row-gap: 2px;
+  white-space: normal;
+}
+.more-link .chip-count {
+  color: var(--muted);
+}
+.filter-error {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--danger);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+}
+@media (max-width: 900px) {
+  .discovery-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px 0 12px;
+  }
+  .home-heading {
+    justify-content: space-between;
+  }
+}
+@media (max-width: 700px) {
+  .home-heading h1 {
+    font-size: 36px;
+  }
+  .home-count {
+    font-size: 12px;
+  }
+  .filter-panel {
+    gap: 4px;
+    padding-bottom: 10px;
+  }
+  /* The chips say what each row is; the label stays for screen readers. */
+  .filter-row,
+  .filter-row.has-before {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .filter-row.has-before {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .filter-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .date-chip .date-chip-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .date-chip.is-active .date-chip-text {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+  }
+  .date-chip {
+    padding: 0 10px;
+  }
+  .chip {
+    padding: 0 10px;
+  }
+  /* Rows run to the screen edge so cut-off chips read as "scroll on". */
+  .chip-scroll {
+    margin-right: calc(-1 * var(--gutter));
+    padding-right: var(--gutter);
+  }
+  .active-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .listing-section {
+    padding: 8px 0 56px;
+  }
+}
+
+/* 9 ─ Shared content pieces used across detail, venue, DJ and city pages. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tags > span {
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.cancelled {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--danger);
+  color: #0a0a0a;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+:root[data-theme="light"] .cancelled {
+  color: #ffffff;
+}
+.cancellation-banner {
+  margin-top: 16px;
+  font-size: 14px;
+}
+.description {
+  max-width: 65ch;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink);
+  white-space: pre-line;
+}
+.external-note {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.share-control > span:empty {
+  display: none;
+}
+.share-control > span {
+  display: block;
+  max-width: 240px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.quiet-empty {
+  padding: 32px 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.sample-section {
+  max-width: 650px;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.sample-section h2 {
+  margin-bottom: 20px;
+  font-size: clamp(30px, 4vw, 40px);
+}
+
+/* 10 ─ External media: Instagram and SoundCloud embeds, placeholders and the
+   shared consent dialog. */
+.instagram-media iframe {
+  display: block;
+  width: 100%;
+  height: 580px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+}
+.embed-placeholder,
+.sc-placeholder {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.embed-placeholder {
+  max-width: 650px;
+}
+.embed-placeholder h3 {
+  margin: 4px 0 8px;
+  font-size: 20px;
+  line-height: 1.2;
+}
+.embed-placeholder p,
+.sc-placeholder p {
+  max-width: 52ch;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.embed-placeholder .button,
+.sc-placeholder .button {
+  max-width: 100%;
+  white-space: normal;
+}
+.embed-note {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+  font-size: 14px;
+}
+.embed-note a,
+.sc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  align-self: flex-start;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.embed-note > span {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.instagram-profile iframe {
+  max-width: 540px;
+  height: 640px;
+  margin-bottom: 12px;
+}
+.instagram-profile .embed-note,
+.instagram-profile .embed-placeholder {
+  max-width: 540px;
+}
+/* SoundCloud's own widget: a profile lists its latest uploads and sets. */
+.sc-player {
+  display: grid;
+  min-width: 0;
+}
+.sc-player iframe {
+  display: block;
+  width: 100%;
+  height: 420px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.sc-compact iframe {
+  height: 300px;
+}
+.consent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 0.7);
+}
+.consent-dialog {
+  position: relative;
+  width: min(100%, 600px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  padding: clamp(20px, 4vw, 32px);
+  border: 1px solid var(--ink);
+  border-top: 6px solid var(--lime);
+  background: var(--raised);
+  color: var(--ink);
+}
+.consent-dialog h2 {
+  margin: 10px 0 12px;
+  font-size: clamp(28px, 5vw, 40px);
+}
+.consent-dialog p {
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.consent-news {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--signal);
+  background: var(--surface);
+}
+.consent-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+.consent-actions .button {
+  min-width: 0;
+  padding-inline: 10px;
+  white-space: normal;
+}
+.consent-choices {
+  display: grid;
+  gap: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+.consent-choices legend {
+  float: left;
+  width: 100%;
+  padding: 12px 0 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.consent-choices label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.consent-choices input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--lime);
+}
+.consent-choices label > span {
+  display: grid;
+  gap: 2px;
+}
+.consent-choices strong {
+  font-size: 15px;
+}
+.consent-choices small {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.consent-save,
+.consent-close {
+  justify-self: start;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.consent-close {
+  display: block;
+}
+/* Controls that only work with JavaScript hide without it; a plain link
+   takes their place where one exists. Without JavaScript nothing external
+   can load anyway, so the consent dialog never blocks the page. The head
+   script sets data-js before first paint, so returning and first-time
+   visitors with JavaScript see no flash. */
+:root:not([data-js]) .needs-js,
+:root:not([data-js]) .consent-overlay {
+  display: none;
+}
+@media (max-width: 700px) {
+  .embed-placeholder,
+  .sc-placeholder {
+    padding: 18px;
+  }
+  .instagram-media iframe {
+    height: 540px;
+  }
+  .instagram-profile iframe {
+    height: 550px;
+  }
+  .sc-player iframe {
+    height: 380px;
+  }
+  .sc-compact iframe {
+    height: 300px;
+  }
+  .consent-overlay {
+    padding: 12px;
+  }
+  .consent-dialog {
+    max-height: calc(100dvh - 24px);
+  }
+  .consent-dialog p {
+    font-size: 14px;
+  }
+}
+
+/* 11 ─ Empty and error states. */
+.empty-state {
+  padding: 56px 24px;
+  border: 1px solid var(--line);
+  text-align: center;
+}
+.empty-state > span {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.empty-state h3 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 40px);
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.empty-state p {
+  max-width: 46ch;
+  margin: 12px auto 24px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.empty-state p:last-child {
+  margin-bottom: 0;
+}
+.page-empty {
+  margin-block: 48px 64px;
+  padding: clamp(48px, 10vw, 96px) 24px;
+}
+.page-empty h1 {
+  margin: 16px 0 0;
+  font-size: clamp(44px, 7vw, 80px);
+}
+.page-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* 12 ─ Legal and contact pages. */
+.legal-page {
+  max-width: 760px;
+  font-size: 16px;
+  line-height: 1.75;
+}
+.legal-page h1 {
+  margin-bottom: 20px;
+  font-size: clamp(44px, 8vw, 80px);
+  font-weight: 900;
+}
+.legal-page h2 {
+  margin-bottom: 8px;
+  font-size: clamp(24px, 3vw, 30px);
+  line-height: 1.05;
+}
+.legal-page section {
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.legal-page p + p,
+.legal-page p + ul,
+.legal-page ul + p,
+.legal-page address + p,
+.legal-page a + p {
+  margin-top: 12px;
+}
+.legal-page > section + p,
+.legal-page > p:last-child {
+  margin-top: 36px;
+}
+.legal-page ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+.legal-page li + li {
+  margin-top: 6px;
+}
+.legal-page address {
+  font-style: normal;
+}
+.legal-page a:not(.button) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+.legal-page a:not(.button):hover {
+  text-decoration-color: var(--signal);
+  text-decoration-thickness: 2px;
+}
+.legal-page .button {
+  margin-top: 8px;
+}
+
+/* 13 ─ Footer: plain links, no slogan. */
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 32px;
+  padding: 24px 0 32px;
+  border-top: 1px solid var(--ink);
+}
+.wordmark.small {
+  font-size: 24px;
+}
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 24px;
+}
+.footer-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.footer-nav a:hover {
+  color: var(--ink);
+}
+@media (max-width: 700px) {
+  .site-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .footer-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    column-gap: 16px;
+  }
+}
+
+/* 14 ─ Motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

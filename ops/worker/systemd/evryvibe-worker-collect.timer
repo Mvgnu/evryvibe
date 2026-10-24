@@ -1,0 +1,11 @@
+[Unit]
+Description=Run EVRYVIBE Instagram collection four times outside daily rest
+
+[Timer]
+OnCalendar=*-*-* 00,03,18,21:00:00 Europe/Berlin
+RandomizedDelaySec=12min
+Persistent=false
+Unit=evryvibe-worker-collect.service
+
+[Install]
+WantedBy=timers.target

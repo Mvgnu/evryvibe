@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "evryvibe": {
+      "command": "ssh",
+      "args": [
+        "-T",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ServerAliveInterval=30",
+        "evryvibe@87.58.154.89"
+      ]
+    }
+  }
+}

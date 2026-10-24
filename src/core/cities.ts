@@ -96,7 +96,7 @@ const lifecycleFormats = new Map<string, Intl.DateTimeFormat>();
 
 // The fallback is a visibility policy, never evidence that a night is running.
 export function isUpcoming(
-  event: Event,
+  event: Pick<Event, "startsAt" | "endsAt">,
   now: number,
   timezone: string,
 ): boolean {

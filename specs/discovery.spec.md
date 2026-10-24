@@ -35,6 +35,12 @@ bar:
 
 # Discovery
 
+The personal hearing-first `/listen` flow is specified separately in
+`listen.spec.md`. It is linked prominently from home and the header. On phones,
+Listen and Cities are the header tabs; the DJ directory remains in the footer
+and linked from listening cards. Below 360px the current Cities tab or Listen
+is retained. Existing catalogue pages keep their event-first presentation.
+
 ## Design language: club programme
 
 Dark-first, print-like techno. Pages read like a club programme and the
@@ -74,7 +80,7 @@ event titles remain intact. A fine dark keyline on the white title lettering
 keeps it readable where light motif shapes pass underneath, without hiding the
 artwork.
 
-Routes: `/` event discovery, `/cities`, `/cities/[slug]`, `/events/[slug]`, `/venues/[slug]`, `/djs`, `/djs/[slug]`, `/genres`, `/genres/[slug]`. Other directory routes are added only when navigation needs them. Top navigation (Nächte · DJs · Städte) must lead to real destinations; on phones the header is one row, the wordmark leads home and "DJs" and "Städte" stay as tabs (below 360px only "Städte"; DJs and Genres are always in the footer). Use responsive layouts, keyboard focus, semantic controls, reduced-motion support, and descriptive page metadata.
+Routes: `/` event discovery, `/listen`, `/cities`, `/cities/[slug]`, `/events/[slug]`, `/venues/[slug]`, `/djs`, `/djs/[slug]`, `/genres`, `/genres/[slug]`. Other directory routes are added only when navigation needs them. Top navigation (Hören · Nächte · DJs · Städte) leads to real destinations. On phones the header is one row, the wordmark leads home and Hören and Städte stay as tabs; below 360px keep the current Städte tab or Hören. DJs and Genres are always in the footer. Use responsive layouts, keyboard focus, semantic controls, reduced-motion support, and descriptive page metadata.
 
 City month routes `/cities/[slug]/YYYY-MM` exist only for a future month with
 scheduled nights. The base city page reads bilingual city editorial fields
@@ -192,7 +198,7 @@ Contact routes `/kontakt` and `/takedown` (and `/en` alternatives) are linked fr
 
 DJ and venue pages, and the event lineup, offer SoundCloud's own player for a
 known `soundcloudUrl` (`soundcloudPlayerUrl`; a profile lists its latest
-uploads and sets, nothing about tracks is stored). The player follows the
+uploads and sets; catalogue pages store no track metadata). The player follows the
 SoundCloud choice of the shared external-media consent: nothing is requested
 from soundcloud.com before acceptance. Unset or rejected shows a short
 explanation, a "SoundCloud-Player laden" button (accepts SoundCloud only) and

@@ -331,8 +331,8 @@ button {
   display: none;
 }
 @media (max-width: 700px) {
-  /* One row on phones: the wordmark leads home, so "DJs" and "Cities" stay
-     as tabs and the listing starts higher. */
+  /* The wordmark leads home. Listening and cities stay in the phone header;
+     the DJ directory remains available in the footer and on artist cards. */
   .site-header {
     column-gap: 6px;
     min-height: 56px;
@@ -350,7 +350,8 @@ button {
     padding: 0 6px;
     font-size: 12px;
   }
-  .site-nav a[data-section="nights"] {
+  .site-nav a[data-section="nights"],
+  .site-nav a[data-section="djs"] {
     display: none;
   }
   .preferences {
@@ -379,8 +380,7 @@ button {
     font-size: 20px;
   }
 }
-/* The smallest phones keep one of DJs and Cities: the current section's tab,
-   or DJs when neither is current. The other stays a footer link. */
+/* The smallest phones keep Listen, or Cities while browsing that section. */
 @media (max-width: 359px) {
   .site-header {
     column-gap: 4px;
@@ -388,11 +388,34 @@ button {
   .wordmark {
     font-size: 22px;
   }
-  .site-nav:has(a[data-section="cities"][aria-current]) a[data-section="djs"],
+  .site-nav:has(a[data-section="cities"][aria-current])
+    a[data-section="listen"],
   .site-nav:not(:has(a[data-section="cities"][aria-current]))
     a[data-section="cities"] {
     display: none;
   }
+}
+
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 20px;
+}
+.home-listen-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--signal);
+  text-underline-offset: 5px;
+}
+.home-listen-link .ui-icon:first-child {
+  color: var(--signal);
 }
 
 /* 5 ─ Notices. */

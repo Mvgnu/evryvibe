@@ -80,12 +80,12 @@ export const soundcloudProfileSchema = z
  */
 export function soundcloudPlayerUrl(
   profileUrl: string,
-  options: { visual?: boolean } = {},
+  options: { visual?: boolean; autoPlay?: boolean } = {},
 ): string {
   const params = new URLSearchParams({
     url: soundcloudProfileSchema.parse(profileUrl),
     color: "#d8ff00",
-    auto_play: "false",
+    auto_play: options.autoPlay ? "true" : "false",
     hide_related: "true",
     show_comments: "false",
     show_user: "true",

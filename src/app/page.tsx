@@ -186,19 +186,33 @@ export default async function Discovery({
           <h1 id="home-title">
             {copy(locale, "Techno-Partys", "Techno parties")}
           </h1>
-          <p className="home-count">
-            {filtered
-              ? copy(
-                  locale,
-                  `${view.shown} von ${view.total} ${nightsWord(view.total, locale)}`,
-                  `${view.shown} of ${view.total} ${nightsWord(view.total, locale)}`,
-                )
-              : copy(
-                  locale,
-                  `${view.total} ${view.total === 1 ? "kommende Nacht" : "kommende Nächte"}`,
-                  `${view.total} upcoming ${nightsWord(view.total, locale)}`,
-                )}
-          </p>
+          <div className="home-actions">
+            <p className="home-count">
+              {filtered
+                ? copy(
+                    locale,
+                    `${view.shown} von ${view.total} ${nightsWord(view.total, locale)}`,
+                    `${view.shown} of ${view.total} ${nightsWord(view.total, locale)}`,
+                  )
+                : copy(
+                    locale,
+                    `${view.total} ${view.total === 1 ? "kommende Nacht" : "kommende Nächte"}`,
+                    `${view.total} upcoming ${nightsWord(view.total, locale)}`,
+                  )}
+            </p>
+            <Link
+              className="home-listen-link"
+              href={localizePath("/listen", locale)}
+            >
+              <Icon name="play" />
+              {copy(
+                locale,
+                "Sound hören & Party finden",
+                "Listen & find a party",
+              )}
+              <Icon name="arrow-up-right" />
+            </Link>
+          </div>
         </div>
         <form
           key={filters.q}

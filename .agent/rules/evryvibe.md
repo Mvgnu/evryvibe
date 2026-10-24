@@ -13,6 +13,9 @@ trigger: always_on
 - Store Instagram profile and post URLs and link or embed them. Store verified
   SoundCloud profile URLs and embed SoundCloud's own player. Never host, upload
   or catalogue audio or track lists.
+- The listening feed may keep bounded, validated current-sound metadata with
+  explicit feedback in the visitor's browser. It is not a server music library;
+  unknown keys stay unknown and no audio is downloaded for analysis.
 - The collector produces source packages; agents resolve entities and publish
   through MCP. MCP is the write path. There is no manual review step.
 - Unknown stays unknown. An uncertain date, identity or location is not

@@ -23,6 +23,13 @@ EVRYVIBE_DEMO=1 npm run dev
 Open http://localhost:3100. Demo mode is disabled in production. Without demo mode
 or a database, the application has an honest empty catalog.
 
+`/listen` (English: `/en/listen`) is the personal listening feed: select a
+starting city/radius, hear SoundCloud profiles from upcoming lineups, and use
+Like/Dislike to rank artists and related nights. Preferences stay on the device.
+Distances are approximate city-centre straight lines. The official widget may
+provide BPM/key data; absent metadata is never fabricated. See
+[the listening contract](specs/listen.spec.md) for coverage and playback limits.
+
 For real persistence:
 
 ```sh

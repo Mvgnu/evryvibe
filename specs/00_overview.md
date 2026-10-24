@@ -7,7 +7,12 @@ EVRYVIBE is a new sibling of `musikconnect`; legacy code is reference material o
 
 Help someone find a night out, understand the venue and lineup, hear a DJ through their SoundCloud profile player or an existing Instagram post, and open the ticket link or share the event. Start with events, venues, and DJs. These three connected entities are the product and the initial data flywheel.
 
-No tenants, groups, collectives, feeds, messaging, music uploads, library management, payments, ticket issuance, memberships, recommendation engine, or account system in this slice. Ticketing is an ordinary external HTTPS link, including ticket.io and other providers.
+No tenants, groups, collectives, messaging, music uploads, library management, payments, ticket issuance, memberships, or account system in this slice. Ticketing is an ordinary external HTTPS link, including ticket.io and other providers.
+
+The user brief of 24 October 2026 adds `/listen`: an account-free SoundCloud
+discovery feed with a city-centre radius, explicit device-local feedback and
+artist/genre recommendations for upcoming events. `listen.spec.md` defines
+this extension, including optional musical-key metadata and its limits.
 
 ## Decisions
 

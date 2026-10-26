@@ -4,6 +4,7 @@ import { getCatalog } from "@/db/catalog";
 import { catalogCities, cityNights, isUpcoming } from "@/core/cities";
 import { cityMonths } from "@/app/cities/city-data";
 import { directoryEntries } from "@/core/dj-directory";
+import { buildReels } from "@/core/reels";
 import {
   genrePath,
   genreStats,
@@ -45,6 +46,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(genres.length
       ? ["/genres", ...genres.map(({ genre }) => genrePath(genre))]
       : []),
+    // Reels has something to play only with a booked SoundCloud DJ.
+    ...(buildReels(catalog, now).length ? ["/reels"] : []),
+    "/keys",
     "/impressum",
     "/datenschutz",
     "/kontakt",

@@ -18,7 +18,9 @@ export function Icon({
     | "calendar"
     | "chevron-down"
     | "play"
-    | "wave";
+    | "wave"
+    | "heart"
+    | "skip";
   className?: string;
 }) {
   const paths = {
@@ -37,6 +39,9 @@ export function Icon({
     "chevron-down": "m6 9 6 6 6-6",
     play: "M7 4.5v15L19 12Z",
     wave: "M4 10v4m4-7v10m4-13v16m4-13v10m4-7v4",
+    heart:
+      "M12 20.5S3.5 15.3 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 6.1-8.5 11.3-8.5 11.3Z",
+    skip: "M5 5v14l10-7Zm14 0v14",
   };
   return (
     <svg
@@ -45,7 +50,7 @@ export function Icon({
       width="1em"
       height="1em"
       viewBox="0 0 24 24"
-      fill={name === "play" ? "currentColor" : "none"}
+      fill={name === "play" || name === "skip" ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth={name === "asterisk" ? 2.5 : name === "wave" ? 2.2 : 1.8}
       strokeLinecap="round"

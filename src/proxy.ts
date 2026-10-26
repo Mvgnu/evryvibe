@@ -35,7 +35,7 @@ export function proxy(request: NextRequest) {
   // Rewrite only public catalogue pages. Localized aliases must never expose ops/API.
   if (
     english &&
-    /^\/en(?:\/?|\/(?:impressum|datenschutz|kontakt|takedown|cities|djs|genres)\/?|\/(?:events|venues|djs|cities|genres)\/[^/]+\/?|\/cities\/[^/]+\/\d{4}-(?:0[1-9]|1[0-2])\/?)$/.test(
+    /^\/en(?:\/?|\/(?:impressum|datenschutz|kontakt|takedown|cities|djs|genres|reels|keys)\/?|\/(?:events|venues|djs|cities|genres)\/[^/]+\/?|\/cities\/[^/]+\/\d{4}-(?:0[1-9]|1[0-2])\/?)$/.test(
       pathname,
     )
   ) {

@@ -281,7 +281,8 @@ test("the header keeps the current section visible at 320px", async ({
 }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   for (const [url, visible, hidden] of [
-    ["/", "djs", "cities"],
+    ["/", "reels", "djs"],
+    ["/reels", "reels", "cities"],
     ["/djs", "djs", "cities"],
     ["/genres/hard-techno", "djs", "cities"],
     ["/djs/vera-kaltwerk", "djs", "cities"],
@@ -301,15 +302,19 @@ test("the header keeps the current section visible at 320px", async ({
 test("navigation and genre tags lead to the directory and genre pages", async ({
   page,
   context,
+  isMobile,
 }) => {
   await rejectMedia(context);
   await page.goto("/");
   // Past demo nights stay off the upcoming programme.
   await expect(page.locator(".ev-row").first()).toBeVisible();
   await expect(page.getByText("Rückspiegel Hart")).toHaveCount(0);
+  // Phones keep Reels and Cities in the header; DJs is a footer link there.
   await page
-    .getByRole("navigation", { name: "Hauptnavigation" })
-    .getByRole("link", { name: "DJs" })
+    .getByRole("navigation", {
+      name: isMobile ? /^DJs, Städte, Kontakt/ : "Hauptnavigation",
+    })
+    .getByRole("link", { name: "DJs", exact: true })
     .click();
   await expect(page).toHaveURL(/\/djs$/);
   await expect(page.locator('.site-nav a[data-section="djs"]')).toHaveAttribute(

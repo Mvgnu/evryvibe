@@ -8,12 +8,13 @@ import { localizePath, type Locale } from "@/core/i18n";
 const copy = (locale: Locale, de: string, en: string) =>
   locale === "en" ? en : de;
 
-type Section = "nights" | "djs" | "cities" | null;
+type Section = "reels" | "nights" | "djs" | "cities" | null;
 
 // The English alias is a proxy rewrite, so compare against the unprefixed path.
 function currentSection(pathname: string): Section {
   const path = localizePath(pathname || "/", "de");
   if (path === "/") return "nights";
+  if (path === "/reels") return "reels";
   if (path === "/cities" || path.startsWith("/cities/")) return "cities";
   if (
     path === "/djs" ||
@@ -28,6 +29,11 @@ function currentSection(pathname: string): Section {
 export function Header({ locale = "de" }: { locale?: Locale }) {
   const section = currentSection(usePathname());
   const links = [
+    {
+      key: "reels" as const,
+      href: localizePath("/reels", locale),
+      label: "Reels",
+    },
     {
       key: "nights" as const,
       href: localizePath("/", locale),
@@ -97,8 +103,10 @@ export function Footer({ locale = "de" }: { locale?: Locale }) {
           "DJs, cities, contact and legal information",
         )}
       >
+        <Link href={localizePath("/reels", locale)}>Reels</Link>
         <Link href={localizePath("/djs", locale)}>DJs</Link>
         <Link href={localizePath("/genres", locale)}>Genres</Link>
+        <Link href={localizePath("/keys", locale)}>Keys</Link>
         <Link href={localizePath("/cities", locale)}>
           {copy(locale, "Städte", "Cities")}
         </Link>

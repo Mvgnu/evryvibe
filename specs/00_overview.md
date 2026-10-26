@@ -7,7 +7,7 @@ EVRYVIBE is a new sibling of `musikconnect`; legacy code is reference material o
 
 Help someone find a night out, understand the venue and lineup, hear a DJ through their SoundCloud profile player or an existing Instagram post, and open the ticket link or share the event. Start with events, venues, and DJs. These three connected entities are the product and the initial data flywheel.
 
-No tenants, groups, collectives, feeds, messaging, music uploads, library management, payments, ticket issuance, memberships, recommendation engine, or account system in this slice. Ticketing is an ordinary external HTTPS link, including ticket.io and other providers.
+No tenants, groups, collectives, social feeds, messaging, music uploads, library management, payments, ticket issuance, memberships, server-side recommendation or listening history, or account system in this slice. The one feed is Reels (`reels.spec.md`): DJs with upcoming nights near the visitor, played through SoundCloud's widget and ordered by likes kept on the visitor's device. Ticketing is an ordinary external HTTPS link, including ticket.io and other providers.
 
 ## Decisions
 
@@ -25,6 +25,7 @@ No tenants, groups, collectives, feeds, messaging, music uploads, library manage
 | PM / foundation    | this file, `delivery.md` | root config, `docs/`, scripts, integration tests, shared contract initialization |
 | Core and ingestion | `ingestion.spec.md`      | `src/core/`, `src/db/`, `src/mcp/`, `drizzle/`, backend tests                    |
 | Discovery          | `discovery.spec.md`      | `src/app/`, `src/components/`, `public/`                                         |
+| Reels              | `reels.spec.md`          | `src/core/reels.ts`, `src/core/locations.ts`, `src/core/musical-key.ts`, Reels and Keys pages and components |
 | Guidance           | `.agent/`                | `AGENTS.md`, `.agent/`                                                           |
 
 Collection work is divided under `collection.spec.md`: source control/persistence

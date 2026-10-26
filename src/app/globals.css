@@ -353,6 +353,12 @@ button {
   .site-nav a[data-section="nights"] {
     display: none;
   }
+  /* Reels always; then DJs on DJ pages, otherwise Cities. */
+  .site-nav:not(:has(a[data-section="djs"][aria-current]))
+    a[data-section="djs"],
+  .site-nav:has(a[data-section="djs"][aria-current]) a[data-section="cities"] {
+    display: none;
+  }
   .preferences {
     gap: 2px;
   }
@@ -379,8 +385,8 @@ button {
     font-size: 20px;
   }
 }
-/* The smallest phones keep one of DJs and Cities: the current section's tab,
-   or DJs when neither is current. The other stays a footer link. */
+/* The smallest phones keep one tab: DJs or Cities when current, otherwise
+   Reels. The others stay footer links. */
 @media (max-width: 359px) {
   .site-header {
     column-gap: 4px;
@@ -388,9 +394,14 @@ button {
   .wordmark {
     font-size: 22px;
   }
-  .site-nav:has(a[data-section="cities"][aria-current]) a[data-section="djs"],
+  /* One tab: the current section, otherwise Reels. */
   .site-nav:not(:has(a[data-section="cities"][aria-current]))
-    a[data-section="cities"] {
+    a[data-section="cities"],
+  .site-nav:has(
+      a[data-section="djs"][aria-current],
+      a[data-section="cities"][aria-current]
+    )
+    a[data-section="reels"] {
     display: none;
   }
 }
@@ -1417,4 +1428,28 @@ button {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* Home → Reels: the one big way into listening. */
+.home-reels-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  background: var(--lime);
+  color: var(--on-lime);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.home-reels-link:hover {
+  text-decoration: none;
+  background: var(--ink);
+  color: var(--paper);
+}
+.ui-icon.filled path {
+  fill: currentColor;
 }

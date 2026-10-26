@@ -12,8 +12,8 @@ ownership and parallel work; `.agent/workflows/gauntlet.md` covers review.
 - One Next.js app: strict TypeScript, Drizzle, PostgreSQL.
 - `../musikconnect` is reference only. Nothing is imported or migrated from it.
 - Out of scope without a new brief: accounts, tenants, collectives, groups,
-  feeds or social features, a music library, audio uploads, a marketplace,
-  owned ticketing.
+  social feeds or features, a music library, audio uploads, a marketplace,
+  owned ticketing. Reels (`specs/reels.spec.md`) is the one listening feed.
 - Schema and spec changes inside that scope are routine. Coordinate them; they
   don't need another approval.
 - Delegated agents run at medium reasoning with exclusive write paths.
@@ -23,7 +23,7 @@ ownership and parallel work; `.agent/workflows/gauntlet.md` covers review.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
-# This is NOT the Next.js you know
+## This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 

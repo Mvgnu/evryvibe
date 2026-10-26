@@ -74,7 +74,7 @@ event titles remain intact. A fine dark keyline on the white title lettering
 keeps it readable where light motif shapes pass underneath, without hiding the
 artwork.
 
-Routes: `/` event discovery, `/cities`, `/cities/[slug]`, `/events/[slug]`, `/venues/[slug]`, `/djs`, `/djs/[slug]`, `/genres`, `/genres/[slug]`. Other directory routes are added only when navigation needs them. Top navigation (Nächte · DJs · Städte) must lead to real destinations; on phones the header is one row, the wordmark leads home and "DJs" and "Städte" stay as tabs (below 360px only "Städte"; DJs and Genres are always in the footer). Use responsive layouts, keyboard focus, semantic controls, reduced-motion support, and descriptive page metadata.
+Routes: `/` event discovery, `/reels` and `/keys` (see `reels.spec.md`), `/cities`, `/cities/[slug]`, `/events/[slug]`, `/venues/[slug]`, `/djs`, `/djs/[slug]`, `/genres`, `/genres/[slug]`. Other directory routes are added only when navigation needs them. Top navigation (Reels · Nächte · DJs · Städte) must lead to real destinations; on phones the header is one row, the wordmark leads home, "Reels" always stays and one more tab follows: "DJs" on DJ pages, otherwise "Städte" (below 360px only one tab: "DJs" or "Städte" on their own section, otherwise "Reels"). Reels, DJs, Genres and Keys are always in the footer. The home heading carries one lime "Reels" link. Use responsive layouts, keyboard focus, semantic controls, reduced-motion support, and descriptive page metadata.
 
 City month routes `/cities/[slug]/YYYY-MM` exist only for a future month with
 scheduled nights. The base city page reads bilingual city editorial fields

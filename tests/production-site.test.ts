@@ -155,6 +155,8 @@ describe("production discovery metadata", () => {
     expect((await sitemap()).map(({ url }) => url)).toEqual([
       "https://evryvibe.com/",
       "https://evryvibe.com/en",
+      "https://evryvibe.com/keys",
+      "https://evryvibe.com/en/keys",
       "https://evryvibe.com/impressum",
       "https://evryvibe.com/en/impressum",
       "https://evryvibe.com/datenschutz",
@@ -189,12 +191,14 @@ it("publishes only catalogue detail routes in both languages with matching hrefl
   ];
   const indexableGenres = genres.filter(isIndexableGenre);
   // Home, four legal pages, city index, four fixture cities, qualifying
-  // months, the DJ directory, the genre index and indexable genre pages.
+  // months, the DJ directory, the genre index, indexable genre pages, Reels
+  // (fixture DJs with SoundCloud have upcoming nights) and Keys.
   expect(indexableGenres.length).toBeGreaterThan(0);
   expect(entries).toHaveLength(
     2 *
       (10 +
         monthCount +
+        2 +
         2 +
         indexableGenres.length +
         demoCatalog.events.filter((event) =>
@@ -210,6 +214,7 @@ it("publishes only catalogue detail routes in both languages with matching hrefl
   const urls = entries.map((entry) => entry.url);
   expect(urls).toContain("https://evryvibe.com/en/cities/muenchen");
   expect(urls).toContain("https://evryvibe.com/djs");
+  expect(urls).toContain("https://evryvibe.com/en/reels");
   expect(urls).toContain("https://evryvibe.com/en/genres");
   // A thin genre page (under five DJs, no upcoming night) stays out.
   const thin = genres.find((item) => !isIndexableGenre(item));

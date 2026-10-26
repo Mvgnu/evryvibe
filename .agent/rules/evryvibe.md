@@ -12,7 +12,8 @@ trigger: always_on
   to DJs.
 - Store Instagram profile and post URLs and link or embed them. Store verified
   SoundCloud profile URLs and embed SoundCloud's own player. Never host, upload
-  or catalogue audio or track lists.
+  or catalogue audio or track lists. Reels read track metadata from the
+  consented widget in the browser only; likes stay on the visitor's device.
 - The collector produces source packages; agents resolve entities and publish
   through MCP. MCP is the write path. There is no manual review step.
 - Unknown stays unknown. An uncertain date, identity or location is not

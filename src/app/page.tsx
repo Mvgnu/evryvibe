@@ -199,6 +199,17 @@ export default async function Discovery({
                   `${view.total} upcoming ${nightsWord(view.total, locale)}`,
                 )}
           </p>
+          <Link
+            className="home-reels-link"
+            href={localizePath("/reels", locale)}
+          >
+            <Icon name="play" />
+            {copy(
+              locale,
+              "Reels: DJs aus deiner Nähe hören",
+              "Reels: hear DJs near you",
+            )}
+          </Link>
         </div>
         <form
           key={filters.q}

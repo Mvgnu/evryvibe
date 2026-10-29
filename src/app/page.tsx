@@ -210,6 +210,9 @@ export default async function Discovery({
               "Reels: hear DJs near you",
             )}
           </Link>
+          <Link className="home-map-link" href={localizePath("/map", locale)}>
+            {copy(locale, "Karte entdecken ↗", "Explore the map ↗")}
+          </Link>
         </div>
         <form
           key={filters.q}

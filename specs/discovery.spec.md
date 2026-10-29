@@ -346,3 +346,8 @@ malformed/unknown404, no redirect loops, correct destination city filter, no
 URL-shaped pipe leak in HTML/RSC/links/schema/sitemap, known empty200/noindex
 and preserved canonical/indexing thresholds. A URL-shaped serialized dependency
 was observed in production; Google's exact discovery mechanism is unproven.
+
+
+## Map exploration preview
+
+The noindex `/map` and `/en/map` preview plots upcoming scheduled nights as city-level counts at approximate GeoNames city centres, never as venue coordinates. Cities without a known centre are named separately. The map links to the matching event and city pages, supports both locales and themes, and keeps tile-provider and GeoNames attribution visible. Demo inventory remains clearly fictional. The map is a separate preview; list filters are not yet shared with it.

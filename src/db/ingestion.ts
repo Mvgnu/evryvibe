@@ -33,6 +33,7 @@ import type { CoverCandidate } from "./covers";
 import { enqueueReconciliation, refreshDjPriorities } from "./reconciliation";
 import {
   djs,
+  djAliases,
   eventDjs,
   events,
   eventSources,
@@ -702,6 +703,16 @@ export function ingestionRepository(
         const warnings: string[] = [];
         const queuedDjs: string[] = [];
         for (const item of bundle.djs) {
+          const [alias] = await tx
+            .select({ slug: djs.slug })
+            .from(djAliases)
+            .innerJoin(djs, eq(djAliases.djId, djs.id))
+            .where(eq(djAliases.slug, item.slug));
+          if (alias)
+            throw new DomainError(
+              "identity_conflict",
+              `DJ slug ${item.slug} was merged into ${alias.slug}; use the canonical slug`,
+            );
           const matches = await tx
             .select()
             .from(djs)
@@ -835,6 +846,13 @@ export function ingestionRepository(
                 .from(djs)
                 .where(eq(djs.slug, slug));
               djId = dj?.id;
+              if (!djId) {
+                const [alias] = await tx
+                  .select({ id: djAliases.djId })
+                  .from(djAliases)
+                  .where(eq(djAliases.slug, slug));
+                djId = alias?.id;
+              }
             }
             if (!djId)
               throw new DomainError(
@@ -843,6 +861,11 @@ export function ingestionRepository(
               );
             lineup.push(djId);
           }
+          if (new Set(lineup).size !== lineup.length)
+            throw new DomainError(
+              "identity_conflict",
+              "Lineup contains multiple slugs for the same DJ",
+            );
           const matches = await tx
             .select()
             .from(events)

@@ -148,3 +148,23 @@ describe("locale proxy and operator boundary", () => {
     expect(response.headers.get("Cache-Control")).toBe("no-store");
   });
 });
+
+it("marks public query URLs noindex while leaving clean URLs alone", () => {
+  for (const path of [
+    "/en?date=2026-10-16&city=berlin",
+    "/?q=",
+    "/cities/berlin?genre=Techno",
+    "/en/djs?utm_source=test",
+  ]) {
+    expect(
+      proxy(new NextRequest(`https://evryvibe.com${path}`)).headers.get(
+        "X-Robots-Tag",
+      ),
+    ).toBe("noindex, follow");
+  }
+  expect(
+    proxy(new NextRequest("https://evryvibe.com/en")).headers.get(
+      "X-Robots-Tag",
+    ),
+  ).toBeNull();
+});

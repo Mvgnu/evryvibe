@@ -1,4 +1,4 @@
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import {
   djSchema,
   eventSchema,
@@ -8,7 +8,7 @@ import {
 import { normalizeGenres } from "../core/genres";
 import { isPublicPostUrl } from "../core/media";
 import { database, type Database } from "./client";
-import { djs, eventDjs, events, venues } from "./schema";
+import { djAliases, djs, eventDjs, events, venues } from "./schema";
 import { demoCatalog } from "./demo";
 export async function readCatalog(db: Database): Promise<Catalog> {
   return db.transaction(
@@ -72,4 +72,16 @@ export async function getCatalog(): Promise<Catalog> {
   if (!process.env.DATABASE_URL)
     return { events: [], venues: [], djs: [], mode: "empty" };
   return readCatalog(database());
+}
+
+// Aliases are only looked up after a canonical slug misses, and never in demo mode.
+export async function djRedirect(slug: string): Promise<string | null> {
+  if (!process.env.DATABASE_URL || process.env.EVRYVIBE_DEMO === "1")
+    return null;
+  const [row] = await database()
+    .select({ slug: djs.slug })
+    .from(djAliases)
+    .innerJoin(djs, eq(djAliases.djId, djs.id))
+    .where(eq(djAliases.slug, slug));
+  return row?.slug ?? null;
 }

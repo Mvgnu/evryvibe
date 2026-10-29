@@ -55,6 +55,18 @@ export const djs = pgTable("djs", {
   soundcloudUrl: text("soundcloud_url").unique(),
   samplePostUrl: text("sample_post_url"),
 });
+// Retired DJ slugs remain permanent routes to the surviving identity.
+export const djAliases = pgTable("dj_aliases", {
+  slug: text().primaryKey(),
+  djId: uuid("dj_id")
+    .notNull()
+    .references(() => djs.id),
+  evidence: text().notNull(),
+  snapshot: jsonb().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
 export const events = pgTable(
   "events",
   {

@@ -6,8 +6,9 @@ import { localizePath } from "@/core/i18n";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/core/site";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getCatalog } from "@/db/catalog";
+import { notFound, permanentRedirect } from "next/navigation";
+import { djRedirect, getCatalog } from "@/db/catalog";
+import { PastEvents } from "@/components/past-events";
 import { EventList, nightCount } from "@/components/event-days";
 import { copy, DemoNotice, ExternalLink } from "@/components/catalog-ui";
 import { InstagramEmbed } from "@/components/instagram-embed";
@@ -39,7 +40,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = await requestLocale();
   const [{ slug }, catalog] = await Promise.all([params, getCatalog()]);
   const dj = catalog.djs.find((d) => d.slug === slug);
-  if (!dj) notFound();
+  if (!dj) {
+    const canonical = await djRedirect(slug);
+    if (canonical) permanentRedirect(localizePath(`/djs/${canonical}`, locale));
+    notFound();
+  }
   return pageMetadata(
     dj.name,
     pageDescription(dj, locale),
@@ -51,7 +56,11 @@ export default async function DjPage({ params }: Props) {
   const locale = await requestLocale();
   const [{ slug }, catalog] = await Promise.all([params, getCatalog()]);
   const dj = catalog.djs.find((d) => d.slug === slug);
-  if (!dj) notFound();
+  if (!dj) {
+    const canonical = await djRedirect(slug);
+    if (canonical) permanentRedirect(localizePath(`/djs/${canonical}`, locale));
+    notFound();
+  }
   const requestNow = requestTime();
   const events = catalog.events
     .filter(
@@ -63,6 +72,17 @@ export default async function DjPage({ params }: Props) {
         ),
     )
     .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
+  const pastEvents = catalog.events
+    .filter(
+      (e) =>
+        e.djIds.includes(dj.id) &&
+        catalog.venues.some(
+          (venue) =>
+            venue.id === e.venueId &&
+            !isUpcoming(e, requestNow, venue.timezone),
+        ),
+    )
+    .sort((a, b) => Date.parse(b.startsAt) - Date.parse(a.startsAt));
   const bio = publicBioFor(dj, locale);
   const facts = djPosterFacts(dj, events, locale);
   const demo = catalog.mode === "demo";
@@ -183,6 +203,7 @@ export default async function DjPage({ params }: Props) {
             )}
           </section>
         </div>
+        <PastEvents events={pastEvents} catalog={catalog} locale={locale} />
         {related.length > 0 && (
           <nav className="pf-section pf-more" aria-labelledby="more-djs-title">
             <h2 id="more-djs-title" className="pf-label">

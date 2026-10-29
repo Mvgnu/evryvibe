@@ -517,3 +517,26 @@
     grid-template-columns: repeat(2, minmax(0, 540px));
   }
 }
+
+.pf-past > summary {
+  cursor: pointer;
+  min-height: 44px;
+}
+.pf-past > summary:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+.pf-past[open] > summary {
+  margin-bottom: 1rem;
+}
+.pf-past > summary .pf-label {
+  color: var(--ink);
+}
+.pf-past > summary::after {
+  content: "+";
+  font-size: 20px;
+  line-height: 1;
+}
+.pf-past[open] > summary::after {
+  content: "−";
+}

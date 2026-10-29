@@ -126,3 +126,7 @@ SoundCloud found" and an empty description are valid outcomes.
   evidence excerpts are plain substring matches on the name; the
   structured-data event list hangs off `ProfilePage.hasPart`, which Google does
   not read.
+
+## Reviewed DJ identity merges
+
+Confirmed duplicate DJs are merged transactionally under the catalogue publication lock. Preserve lineup positions and reconciliation history, record the retired DJ, affected lineups and reconciliation task snapshots with the evidence, and keep old slugs as permanent redirects. Reconciliation tasks with unrelated checks remain open. Publication rejects a retired slug as a new DJ, while existing lineup references resolve it to the canonical DJ; duplicate aliases in a lineup are rejected. Ambiguous identities remain separate until supported by evidence.

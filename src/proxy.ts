@@ -32,6 +32,13 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
+  // Query variants are crawlable for their links but should not enter the index.
+  const noindexQuery = (response: NextResponse) => {
+    if (request.nextUrl.searchParams.size > 0)
+      response.headers.set("X-Robots-Tag", "noindex, follow");
+    return response;
+  };
+
   // Rewrite only public catalogue pages. Localized aliases must never expose ops/API.
   if (
     english &&
@@ -41,16 +48,20 @@ export function proxy(request: NextRequest) {
   ) {
     const destination = request.nextUrl.clone();
     destination.pathname = pathname.slice(3) || "/";
-    return NextResponse.rewrite(destination, {
-      request: { headers: requestHeaders },
-    });
+    return noindexQuery(
+      NextResponse.rewrite(destination, {
+        request: { headers: requestHeaders },
+      }),
+    );
   }
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return noindexQuery(
+    NextResponse.next({ request: { headers: requestHeaders } }),
+  );
 }
 
 export const config = {
   matcher: [
     "/ops/:path*",
-    "/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
+    "/((?!api|_next|favicon.ico|robots.txt|sitemap.xml).*)",
   ],
 };

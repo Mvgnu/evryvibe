@@ -8,6 +8,7 @@ import { pageMetadata } from "@/core/site";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCatalog } from "@/db/catalog";
+import { PastEvents } from "@/components/past-events";
 import { EventList, nightCount } from "@/components/event-days";
 import { copy, DemoNotice, ExternalLink } from "@/components/catalog-ui";
 import { SoundTile } from "@/components/poster";
@@ -58,6 +59,17 @@ export default async function VenuePage({ params }: Props) {
         ),
     )
     .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
+  const pastEvents = catalog.events
+    .filter(
+      (e) =>
+        e.venueId === venue.id &&
+        catalog.venues.some(
+          (venue) =>
+            venue.id === e.venueId &&
+            !isUpcoming(e, requestNow, venue.timezone),
+        ),
+    )
+    .sort((a, b) => Date.parse(b.startsAt) - Date.parse(a.startsAt));
   const bio = publicBioFor(venue, locale);
   const cityHref = cityPath(venue.city);
   const facts = venuePosterFacts(venue, events, locale);
@@ -168,6 +180,7 @@ export default async function VenuePage({ params }: Props) {
             </div>
           )}
         </div>
+        <PastEvents events={pastEvents} catalog={catalog} locale={locale} />
         {!demo && venue.instagramUrl && (
           <section className="pf-section pf-social" aria-labelledby="ig-title">
             <h2 id="ig-title" className="pf-label">

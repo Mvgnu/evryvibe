@@ -182,8 +182,19 @@ export function MapExplorer({
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelected(null);
     };
+    const handleOutside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !popupRef.current?.contains(event.target)
+      )
+        setSelected(null);
+    };
     document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
+    document.addEventListener("pointerdown", handleOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("pointerdown", handleOutside);
+    };
   }, [city]);
   return (
     <div className="map-explorer">

@@ -140,6 +140,9 @@ export const venueSchema = z
     country: z.string().trim().min(2).max(100),
     address: text,
     timezone: timezoneSchema,
+    latitude: z.number().min(-90).max(90).nullable().optional(),
+    longitude: z.number().min(-180).max(180).nullable().optional(),
+    locationSourceUrl: httpsUrlSchema.nullable().optional(),
     description: z.string().max(10000),
     translations: descriptionTranslationsSchema.optional(),
     ...socialFields,
@@ -166,13 +169,17 @@ export const eventSchema = z
     translations: eventTranslationsSchema.optional(),
     venueId: z.string().uuid(),
     djIds: z.array(z.string().uuid()).max(100),
+    unlinkedArtists: z
+      .array(z.string().trim().min(1).max(100))
+      .max(50)
+      .optional(),
     startsAt: instantSchema,
     endsAt: instantSchema.nullable(),
     genres: z.array(text).max(20),
     imageUrl: eventImageUrlSchema.nullable(),
     ticketUrl: httpsUrlSchema.nullable(),
     websiteUrl: httpsUrlSchema.nullable(),
-    sourceUrl: instagramSourceSchema,
+    sourceUrl: instagramSourceSchema.nullable(),
     sourceAccountUrl: instagramProfileSchema.nullable().optional(),
     observedAt: instantSchema,
     status: z.enum(["scheduled", "cancelled"]),

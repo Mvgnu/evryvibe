@@ -118,10 +118,13 @@ export function posterFacts(
 // Lineup names in the order the event lists them; unknown DJ ids are skipped.
 export function lineupNames(event: Event, djs: readonly Dj[]): string[] {
   const byId = new Map(djs.map((dj) => [dj.id, dj.name]));
-  return event.djIds.flatMap((id) => {
-    const name = byId.get(id);
-    return name ? [name] : [];
-  });
+  return [
+    ...event.djIds.flatMap((id) => {
+      const name = byId.get(id);
+      return name ? [name] : [];
+    }),
+    ...(event.unlinkedArtists ?? []),
+  ];
 }
 
 // "Upcoming nights" are upcoming and not cancelled. Callers pass upcoming

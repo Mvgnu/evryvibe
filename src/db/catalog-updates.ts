@@ -363,11 +363,13 @@ export function catalogUpdateRepository(
           imageSlide: ignored,
           imageSuppressed: ignoredSuppression,
           imageSourceUrl: ignoredSource,
+          artistCreatedBy: ignoredArtist,
           ...publicCurrent
         } = current;
         void ignored;
         void ignoredSuppression;
         void ignoredSource;
+        void ignoredArtist;
         const merged = parse(eventSchema, {
           ...publicCurrent,
           startsAt: iso(current.startsAt),

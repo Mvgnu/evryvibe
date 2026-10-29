@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   pgTable,
   boolean,
+  doublePrecision,
   check,
   uuid,
   text,
@@ -18,6 +19,7 @@ import type {
   EventTranslations,
 } from "../core/model";
 import type { CityEditorialInput } from "../core/city-editorial";
+import type { ArtistProfile } from "../core/claims";
 
 export const cityEditorial = pgTable("city_editorial", {
   citySlug: text("city_slug").primaryKey(),
@@ -35,6 +37,9 @@ export const venues = pgTable("venues", {
   country: text().notNull(),
   address: text().notNull(),
   timezone: text().notNull(),
+  latitude: doublePrecision(),
+  longitude: doublePrecision(),
+  locationSourceUrl: text("location_source_url"),
   description: text().notNull(),
   translations: jsonb().$type<DescriptionTranslations>().notNull().default({}),
   imageUrl: text("image_url"),
@@ -67,6 +72,58 @@ export const djAliases = pgTable("dj_aliases", {
     .notNull()
     .defaultNow(),
 });
+// Instagram identity owns a DJ independently from the collector's catalogue writes.
+export const artistOwners = pgTable("artist_owners", {
+  djId: uuid("dj_id")
+    .primaryKey()
+    .references(() => djs.id),
+  instagramScopedId: text("instagram_scoped_id").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
+export const artistClaimLinks = pgTable("artist_claim_links", {
+  id: uuid().primaryKey().defaultRandom(),
+  messageId: text("message_id").notNull().unique(),
+  djId: uuid("dj_id")
+    .notNull()
+    .references(() => djs.id),
+  instagramScopedId: text("instagram_scoped_id").notNull(),
+  instagramUrl: text("instagram_url").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "string",
+  }).notNull(),
+  consumedAt: timestamp("consumed_at", { withTimezone: true, mode: "string" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
+export const artistSessions = pgTable("artist_sessions", {
+  id: uuid().primaryKey().defaultRandom(),
+  djId: uuid("dj_id")
+    .notNull()
+    .references(() => artistOwners.djId),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "string",
+  }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
+export const artistProfiles = pgTable("artist_profiles", {
+  djId: uuid("dj_id")
+    .primaryKey()
+    .references(() => artistOwners.djId),
+  bio: text().notNull(),
+  links: jsonb().$type<ArtistProfile["links"]>().notNull().default([]),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
 export const events = pgTable(
   "events",
   {
@@ -84,6 +141,10 @@ export const events = pgTable(
     }).notNull(),
     endsAt: timestamp("ends_at", { withTimezone: true, mode: "string" }),
     genres: jsonb().$type<string[]>().notNull(),
+    unlinkedArtists: jsonb("unlinked_artists")
+      .$type<string[]>()
+      .notNull()
+      .default([]),
     imageUrl: text("image_url"),
     imageSlide: integer("image_slide"),
     imageSuppressed: boolean("image_suppressed").notNull().default(false),
@@ -92,7 +153,8 @@ export const events = pgTable(
     imageSourceUrl: text("image_source_url"),
     ticketUrl: text("ticket_url"),
     websiteUrl: text("website_url"),
-    sourceUrl: text("source_url").notNull(),
+    sourceUrl: text("source_url"),
+    artistCreatedBy: uuid("artist_created_by").references(() => djs.id),
     sourceAccountUrl: text("source_account_url"),
     observedAt: timestamp("observed_at", {
       withTimezone: true,
@@ -282,3 +344,22 @@ export const reconciliationTasks = pgTable(
     ),
   ],
 );
+
+export const geocodeCache = pgTable("geocode_cache", {
+  key: text().primaryKey(),
+  query: text().notNull(),
+  results: jsonb().$type<unknown[]>().notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
+
+export const artistEventCovers = pgTable("artist_event_covers", {
+  eventId: uuid("event_id")
+    .primaryKey()
+    .references(() => events.id, { onDelete: "cascade" }),
+  imageBase64: text("image_base64").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});

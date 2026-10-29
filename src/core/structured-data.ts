@@ -539,7 +539,10 @@ export function eventStructuredData(
     crumbs: cityCrumbs(venue.city, locale),
   });
   return graph(
-    { ...webpage.node, isBasedOn: { "@id": event.sourceUrl } },
+    {
+      ...webpage.node,
+      ...(event.sourceUrl ? { isBasedOn: { "@id": event.sourceUrl } } : {}),
+    },
     ...(webpage.breadcrumb ? [webpage.breadcrumb] : []),
     {
       "@type": "MusicEvent",
@@ -552,19 +555,25 @@ export function eventStructuredData(
       eventStatus: eventStatus(event),
       eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
       location: { "@id": location["@id"] },
-      performer: performers.map((person) => ({ "@id": person["@id"] })),
+      performer: [
+        ...performers.map((person) => ({ "@id": person["@id"] })),
+        ...(event.unlinkedArtists ?? []).map((name) => ({
+          "@type": "Person",
+          name,
+        })),
+      ],
       ...(genres.length ? { genre: genres } : {}),
       ...(event.imageUrl ? { image: event.imageUrl } : {}),
       ...(event.ticketUrl && event.status !== "cancelled"
         ? { offers: { "@type": "Offer", url: event.ticketUrl } }
         : {}),
       ...(event.websiteUrl ? { sameAs: event.websiteUrl } : {}),
-      subjectOf: { "@id": event.sourceUrl },
+      ...(event.sourceUrl ? { subjectOf: { "@id": event.sourceUrl } } : {}),
       mainEntityOfPage: { "@id": `${absoluteUrl(path, locale)}#webpage` },
     },
     location,
     ...performers,
-    source,
+    ...(event.sourceUrl ? [source] : []),
   );
 }
 

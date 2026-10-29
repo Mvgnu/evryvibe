@@ -15,7 +15,7 @@ trigger: always_on
   or catalogue audio or track lists. Reels read track metadata from the
   consented widget in the browser only; likes stay on the visitor's device.
 - The collector produces source packages; agents resolve entities and publish
-  through MCP. MCP is the write path. There is no manual review step.
+  through MCP. Claimed artists can also edit their own profiles and publish events through the authenticated artist flow (`specs/artist-claim.spec.md`). There is no manual review step.
 - Unknown stays unknown. An uncertain date, identity or location is not
   published as fact. An unknown price is not "free", and a missing lineup is
   not filled in. Keep enough source context to correct a record or retry a

@@ -897,6 +897,11 @@ export function ingestionRepository(
               "identity_conflict",
               "This package predates the latest event observation; defer it rather than overwrite newer facts",
             );
+          if (current?.artistCreatedBy)
+            throw new DomainError(
+              "identity_conflict",
+              "Artist-created events cannot be replaced by an automated publication",
+            );
           const linked = current
             ? await linkedCoverCandidates(tx, current.id)
             : [];

@@ -26,8 +26,17 @@ export function Artwork({
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const publicPost = instagramPostSchema.safeParse(event.sourceUrl).success;
   const coverUrl = publicPost ? event.imageUrl : null;
+  const uploadedCover = event.imageUrl?.startsWith(
+    "https://evryvibe.com/api/artist-events/covers/",
+  );
+  // Same-origin routing also works in local and staging environments.
+  const visibleUrl = uploadedCover
+    ? event.imageUrl?.replace("https://evryvibe.com", "")
+    : coverUrl;
   const showCover =
-    consent === "accepted" && !!coverUrl && failedUrl !== coverUrl;
+    (uploadedCover || consent === "accepted") &&
+    !!visibleUrl &&
+    failedUrl !== visibleUrl;
 
   return (
     <div className={`artwork ${className}`.trim()}>
@@ -37,11 +46,11 @@ export function Artwork({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           className="artwork-cover"
-          src={coverUrl}
+          src={visibleUrl ?? ""}
           alt={event.title}
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
-          onError={() => setFailedUrl(coverUrl)}
+          onError={() => setFailedUrl(visibleUrl ?? null)}
         />
       ) : (
         <div className="artwork-fallback" aria-hidden="true">

@@ -38,8 +38,13 @@ export async function readCatalog(db: Database): Promise<Catalog> {
           }),
         ),
         events: eventRows.map((row) => {
-          const { imageSlide, imageSuppressed, imageSourceUrl, ...publicRow } =
-            row;
+          const {
+            imageSlide,
+            imageSuppressed,
+            imageSourceUrl,
+            artistCreatedBy,
+            ...publicRow
+          } = row;
           void imageSlide;
           void imageSuppressed;
           return eventSchema.parse({
@@ -47,9 +52,14 @@ export async function readCatalog(db: Database): Promise<Catalog> {
             genres: normalizeGenres(row.genres).genres,
             // A cover is shown only with its public post/reel provenance.
             imageUrl:
-              imageSourceUrl && isPublicPostUrl(imageSourceUrl)
+              artistCreatedBy &&
+              row.imageUrl?.startsWith(
+                "https://evryvibe.com/api/artist-events/covers/",
+              )
                 ? row.imageUrl
-                : null,
+                : imageSourceUrl && isPublicPostUrl(imageSourceUrl)
+                  ? row.imageUrl
+                  : null,
             startsAt: new Date(row.startsAt).toISOString(),
             endsAt: row.endsAt ? new Date(row.endsAt).toISOString() : null,
             observedAt: new Date(row.observedAt).toISOString(),

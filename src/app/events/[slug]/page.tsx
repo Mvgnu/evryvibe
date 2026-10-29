@@ -76,15 +76,19 @@ export default async function EventPage({ params }: Props) {
   const event = translatedEvent(originalEvent, locale);
   const venue = catalog.venues.find((v) => v.id === event.venueId);
   if (!venue) notFound();
-  const storySource = new URL(event.sourceUrl).pathname.startsWith("/stories/");
+  const storySource =
+    event.sourceUrl !== null &&
+    new URL(event.sourceUrl).pathname.startsWith("/stories/");
   const artists = new Map(catalog.djs.map((dj) => [dj.id, dj]));
   const lineup = event.djIds
     .map((id) => artists.get(id))
     .filter((dj) => dj !== undefined);
+  const unlinkedArtists = event.unlinkedArtists ?? [];
+  const totalLineup = lineup.length + unlinkedArtists.length;
   const poster = posterFacts(
     event,
     venue,
-    lineup.map((dj) => dj.name),
+    [...lineup.map((dj) => dj.name), ...unlinkedArtists],
     locale,
   );
   const when = eventWhen(event, venue.timezone, locale);
@@ -196,7 +200,7 @@ export default async function EventPage({ params }: Props) {
                 <ExternalLink className="chip-button" href={event.websiteUrl}>
                   Website
                 </ExternalLink>
-                {!demo && !storySource && (
+                {!demo && event.sourceUrl && !storySource && (
                   <ExternalLink
                     className="chip-button"
                     href={event.sourceUrl}
@@ -243,13 +247,13 @@ export default async function EventPage({ params }: Props) {
           <section className="ev-lineup" aria-labelledby="lineup-heading">
             <div className="ev-label-row">
               <h2 id="lineup-heading">Line-up</h2>
-              {lineup.length > 0 && (
+              {totalLineup > 0 && (
                 <span>
-                  {lineup.length} {lineup.length === 1 ? "DJ" : "DJs"}
+                  {totalLineup} {totalLineup === 1 ? "DJ" : "DJs"}
                 </span>
               )}
             </div>
-            {lineup.length ? (
+            {totalLineup ? (
               <ListenGroup>
                 <ol className="ev-lineup-list">
                   {lineup.map((dj, index) => (
@@ -301,6 +305,11 @@ export default async function EventPage({ params }: Props) {
                           locale={locale}
                         />
                       )}
+                    </li>
+                  ))}
+                  {unlinkedArtists.map((name) => (
+                    <li key={name} className="ev-lineup-item">
+                      <strong>{name}</strong>
                     </li>
                   ))}
                 </ol>
@@ -357,21 +366,27 @@ export default async function EventPage({ params }: Props) {
                       "Fiktive Vorschau – keine echte Ankündigung oder Tickets.",
                       "Fictional preview — no live announcement or tickets.",
                     )
-                  : `${
-                      storySource
-                        ? copy(
-                            locale,
-                            "Quelle: Instagram-Story (nicht mehr einbettbar). ",
-                            "Source: Instagram story (no longer embeddable). ",
-                          )
-                        : ""
-                    }${copy(locale, "Quelle erfasst am", "Source observed")} ${new Intl.DateTimeFormat(
-                      locale === "en" ? "en-GB" : "de-DE",
-                      { dateStyle: "medium", timeZone: "UTC" },
-                    ).format(new Date(event.observedAt))}`}
+                  : !event.sourceUrl
+                    ? copy(
+                        locale,
+                        "Vom Artist eingetragen",
+                        "Added by the artist",
+                      )
+                    : `${
+                        storySource
+                          ? copy(
+                              locale,
+                              "Quelle: Instagram-Story (nicht mehr einbettbar). ",
+                              "Source: Instagram story (no longer embeddable). ",
+                            )
+                          : ""
+                      }${copy(locale, "Quelle erfasst am", "Source observed")} ${new Intl.DateTimeFormat(
+                        locale === "en" ? "en-GB" : "de-DE",
+                        { dateStyle: "medium", timeZone: "UTC" },
+                      ).format(new Date(event.observedAt))}`}
               </p>
             </section>
-            {!demo && !storySource && (
+            {!demo && event.sourceUrl && !storySource && (
               <section className="sample-section">
                 <h2>{copy(locale, "Originalbeitrag", "Original post")}</h2>
                 <InstagramEmbed

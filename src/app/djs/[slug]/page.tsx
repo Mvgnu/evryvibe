@@ -8,6 +8,9 @@ import { pageMetadata } from "@/core/site";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { djRedirect, getCatalog } from "@/db/catalog";
+import { database } from "@/db/client";
+import { getArtistProfile } from "@/db/claims";
+import { claimWebhookConfigured } from "@/lib/instagram-claim-config";
 import { PastEvents } from "@/components/past-events";
 import { EventList, nightCount } from "@/components/event-days";
 import { copy, DemoNotice, ExternalLink } from "@/components/catalog-ui";
@@ -26,11 +29,12 @@ import { genrePath, listedGenreSlugs } from "@/components/dj-directory-view";
 import { compound } from "@/components/german-compound";
 import { GenreLinks } from "@/components/genre-links";
 import "../../directory.css";
+import "../../artist/artist.css";
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }> };
 // Shared by metadata and structured data so both describe the page alike.
-const pageDescription = (dj: Dj, locale: Locale) =>
-  publicBioFor(dj, locale) ||
+const pageDescription = (dj: Dj, locale: Locale, artistBio?: string) =>
+  (artistBio === undefined ? publicBioFor(dj, locale) : artistBio) ||
   copy(
     locale,
     `DJ-Profil und Events mit ${dj.name}.`,
@@ -45,9 +49,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (canonical) permanentRedirect(localizePath(`/djs/${canonical}`, locale));
     notFound();
   }
+  const artist =
+    catalog.mode === "database"
+      ? await getArtistProfile(database(), dj.id)
+      : null;
   return pageMetadata(
     dj.name,
-    pageDescription(dj, locale),
+    pageDescription(dj, locale, artist?.bio),
     `/djs/${dj.slug}`,
     locale,
   );
@@ -83,7 +91,11 @@ export default async function DjPage({ params }: Props) {
         ),
     )
     .sort((a, b) => Date.parse(b.startsAt) - Date.parse(a.startsAt));
-  const bio = publicBioFor(dj, locale);
+  const artist =
+    catalog.mode === "database"
+      ? await getArtistProfile(database(), dj.id)
+      : null;
+  const bio = artist ? artist.bio : publicBioFor(dj, locale);
   const facts = djPosterFacts(dj, events, locale);
   const demo = catalog.mode === "demo";
   // A "website" that is just a SoundCloud page repeats the SoundCloud chip.
@@ -110,7 +122,12 @@ export default async function DjPage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: serializeJsonLd(
-              djStructuredData(dj, locale, events, pageDescription(dj, locale)),
+              djStructuredData(
+                dj,
+                locale,
+                events,
+                pageDescription(dj, locale, artist?.bio),
+              ),
             ),
           }}
         />
@@ -151,6 +168,28 @@ export default async function DjPage({ params }: Props) {
                 Website
               </ExternalLink>
             </div>
+          )}
+          {catalog.mode === "database" && claimWebhookConfigured() && (
+            <details className="artist-claim">
+              <summary>
+                {copy(locale, "Ist das dein Profil?", "Is this your profile?")}
+              </summary>
+              <p>
+                {copy(
+                  locale,
+                  "Folge @evryvibe auf Instagram und sende uns CLAIM per DM. Wenn dein Instagram-Konto zu diesem Profil passt, schicken wir dir einen einmaligen Link.",
+                  "Follow @evryvibe on Instagram and send us CLAIM by DM. If your Instagram account matches this profile, we will send you a one-time link.",
+                )}
+              </p>
+              <a
+                className="chip-button"
+                href="https://www.instagram.com/evryvibe/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {copy(locale, "Profil beanspruchen", "Claim profile")} ↗
+              </a>
+            </details>
           )}
         </header>
         <div
@@ -204,6 +243,36 @@ export default async function DjPage({ params }: Props) {
           </section>
         </div>
         <PastEvents events={pastEvents} catalog={catalog} locale={locale} />
+        {artist && artist.links.length > 0 && (
+          <section
+            className="pf-section artist-profile-links"
+            aria-label={copy(locale, "Artist-Links", "Artist links")}
+          >
+            <h2 className="pf-label">{copy(locale, "Links", "Links")}</h2>
+            <div className="pf-links">
+              {artist.links.map((link, index) => (
+                <a
+                  className="chip-button"
+                  key={`${link.url}-${index}`}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span aria-hidden="true">
+                    {link.icon === "booking"
+                      ? "✉"
+                      : link.icon === "merch"
+                        ? "◇"
+                        : link.icon === "tickets"
+                          ? "▣"
+                          : "↗"}
+                  </span>{" "}
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
         {related.length > 0 && (
           <nav className="pf-section pf-more" aria-labelledby="more-djs-title">
             <h2 id="more-djs-title" className="pf-label">

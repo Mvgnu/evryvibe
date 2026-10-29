@@ -7,7 +7,7 @@ EVRYVIBE is a new sibling of `musikconnect`; legacy code is reference material o
 
 Help someone find a night out, understand the venue and lineup, hear a DJ through their SoundCloud profile player or an existing Instagram post, and open the ticket link or share the event. Start with events, venues, and DJs. These three connected entities are the product and the initial data flywheel.
 
-No tenants, groups, collectives, social feeds, messaging, music uploads, library management, payments, ticket issuance, memberships, server-side recommendation or listening history, or account system in this slice. The one feed is Reels (`reels.spec.md`): DJs with upcoming nights near the visitor, played through SoundCloud's widget and ordered by likes kept on the visitor's device. Ticketing is an ordinary external HTTPS link, including ticket.io and other providers.
+No tenants, groups, collectives, social feeds, user-to-user messaging, music uploads, library management, payments, ticket issuance, memberships, or server-side recommendation or listening history. Artist-owned DJ profiles and their authentication are specified in `artist-claim.spec.md`. The one feed is Reels (`reels.spec.md`): DJs with upcoming nights near the visitor, played through SoundCloud's widget and ordered by likes kept on the visitor's device. Ticketing is an ordinary external HTTPS link, including ticket.io and other providers.
 
 ## Decisions
 

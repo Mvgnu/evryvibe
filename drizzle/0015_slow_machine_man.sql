@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "unlinked_artists" jsonb DEFAULT '[]'::jsonb NOT NULL;

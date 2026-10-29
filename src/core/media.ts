@@ -68,8 +68,9 @@ export function labelOcrMediaIds(sourceUrl: string, text: string): string {
 }
 
 /** True for a public post/reel permalink, the only source a cover may come from. */
-export function isPublicPostUrl(url: string): boolean {
-  return /^https:\/\/www\.instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+\/?$/.test(
-    url,
+export function isPublicPostUrl(url: string | null): boolean {
+  return (
+    url !== null &&
+    /^https:\/\/www\.instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+\/?$/.test(url)
   );
 }

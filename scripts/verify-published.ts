@@ -135,8 +135,10 @@ try {
     await page.goto(`${baseUrl}/events/${event.slug}`);
     assert.equal(await page.locator("html").getAttribute("lang"), "de");
     await page.getByRole("link", { name: "Tickets kaufen" }).waitFor();
-    const storyEvent = catalog.events.find((item) =>
-      new URL(item.sourceUrl).pathname.startsWith("/stories/"),
+    const storyEvent = catalog.events.find(
+      (item) =>
+        item.sourceUrl !== null &&
+        new URL(item.sourceUrl).pathname.startsWith("/stories/"),
     );
     if (!storyEvent?.sourceAccountUrl)
       throw new Error("Run the story case in tests/mcp.test.ts first");
@@ -172,7 +174,9 @@ try {
       const schemaText = await page
         .locator('script[type="application/ld+json"]')
         .textContent();
-      assert(schemaText?.includes(storyEvent.sourceUrl));
+      assert(
+        storyEvent.sourceUrl && schemaText?.includes(storyEvent.sourceUrl),
+      );
       assert(schemaText?.includes('"author"'));
       assert.equal(await page.locator("iframe").count(), 0);
     }

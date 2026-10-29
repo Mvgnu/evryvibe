@@ -199,17 +199,34 @@
   }
 }
 
-.map-dialog-inner {
+.map-dialog-shell {
   position: absolute;
   z-index: 5;
   box-sizing: border-box;
   width: min(320px, calc(100% - 16px));
+  background: color-mix(in srgb, var(--paper) 20%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.map-dialog-inner {
   max-height: 330px;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0;
   background: transparent;
   color: var(--ink);
+}
+.map-dialog-inner.has-more {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 38px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 38px),
+    transparent 100%
+  );
 }
 .map-dialog-header {
   position: sticky;

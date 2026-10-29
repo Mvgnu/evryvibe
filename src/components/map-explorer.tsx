@@ -50,6 +50,8 @@ export function MapExplorer({
   const container = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<MapLibreMap | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [popupPosition, setPopupPosition] = useState<{
     left: number;
     top: number;
@@ -178,6 +180,24 @@ export function MapExplorer({
     };
   }, [city, map]);
   useEffect(() => {
+    const element = scrollRef.current;
+    if (!city || !element) return;
+    element.scrollTop = 0;
+    const update = () =>
+      setHasMore(
+        element.scrollTop + element.clientHeight < element.scrollHeight - 1,
+      );
+    update();
+    element.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    if (element.firstElementChild) observer.observe(element.firstElementChild);
+    return () => {
+      element.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [city]);
+  useEffect(() => {
     if (!city) return;
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelected(null);
@@ -217,7 +237,7 @@ export function MapExplorer({
         )}
         {city && (
           <div
-            className="map-dialog-inner"
+            className="map-dialog-shell"
             ref={popupRef}
             style={{
               left: popupPosition?.left ?? 8,
@@ -227,65 +247,70 @@ export function MapExplorer({
             role="dialog"
             aria-labelledby="map-dialog-title"
           >
-            <header className="map-dialog-header">
-              <div>
-                <p>
-                  {de ? "KOMMENDE NÄCHTE" : "UPCOMING NIGHTS"} ·{" "}
-                  {city.events.length}
-                </p>
-                <h2 id="map-dialog-title">{city.name}</h2>
-                <span>
-                  {de
-                    ? "Ungefährer Stadtmittelpunkt"
-                    : "Approximate city centre"}
-                </span>
-              </div>
-              <button
-                type="button"
-                className="map-dialog-close"
-                onClick={() => setSelected(null)}
-                aria-label={de ? "Schließen" : "Close"}
-              >
-                ×
-              </button>
-            </header>
-            <div className="map-dialog-events">
-              {city.events.map(({ event, poster, venueName, timezone }) => (
-                <Link
-                  key={event.slug}
-                  className="map-event-card"
-                  href={localizePath(`/events/${event.slug}`, locale)}
-                >
-                  <Artwork
-                    event={event}
-                    poster={poster}
-                    locale={locale}
-                    className="map-event-art"
-                  />
-                  <div className="map-event-info">
-                    <time dateTime={event.startsAt}>
-                      {new Intl.DateTimeFormat(de ? "de-DE" : "en-GB", {
-                        timeZone: timezone,
-                        day: "2-digit",
-                        month: "short",
-                        weekday: "short",
-                      }).format(new Date(event.startsAt))}
-                    </time>
-                    <strong>{event.title}</strong>
-                    <span>{venueName}</span>
-                  </div>
-                  <span className="map-event-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                </Link>
-              ))}
-            </div>
-            <Link
-              className="map-dialog-city"
-              href={localizePath(`/cities/${city.slug}`, locale)}
+            <div
+              ref={scrollRef}
+              className={`map-dialog-inner${hasMore ? " has-more" : ""}`}
             >
-              {de ? "Alle Nächte in" : "All nights in"} {city.name} ↗
-            </Link>
+              <header className="map-dialog-header">
+                <div>
+                  <p>
+                    {de ? "KOMMENDE NÄCHTE" : "UPCOMING NIGHTS"} ·{" "}
+                    {city.events.length}
+                  </p>
+                  <h2 id="map-dialog-title">{city.name}</h2>
+                  <span>
+                    {de
+                      ? "Ungefährer Stadtmittelpunkt"
+                      : "Approximate city centre"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="map-dialog-close"
+                  onClick={() => setSelected(null)}
+                  aria-label={de ? "Schließen" : "Close"}
+                >
+                  ×
+                </button>
+              </header>
+              <div className="map-dialog-events">
+                {city.events.map(({ event, poster, venueName, timezone }) => (
+                  <Link
+                    key={event.slug}
+                    className="map-event-card"
+                    href={localizePath(`/events/${event.slug}`, locale)}
+                  >
+                    <Artwork
+                      event={event}
+                      poster={poster}
+                      locale={locale}
+                      className="map-event-art"
+                    />
+                    <div className="map-event-info">
+                      <time dateTime={event.startsAt}>
+                        {new Intl.DateTimeFormat(de ? "de-DE" : "en-GB", {
+                          timeZone: timezone,
+                          day: "2-digit",
+                          month: "short",
+                          weekday: "short",
+                        }).format(new Date(event.startsAt))}
+                      </time>
+                      <strong>{event.title}</strong>
+                      <span>{venueName}</span>
+                    </div>
+                    <span className="map-event-arrow" aria-hidden="true">
+                      ↗
+                    </span>
+                  </Link>
+                ))}
+              </div>
+              <Link
+                className="map-dialog-city"
+                href={localizePath(`/cities/${city.slug}`, locale)}
+              >
+                {de ? "Alle Nächte in" : "All nights in"} {city.name} ↗
+              </Link>
+            </div>
           </div>
         )}
       </div>

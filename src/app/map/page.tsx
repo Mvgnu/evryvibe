@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { copy, DemoNotice } from "@/components/catalog-ui";
+import { copy, DemoNotice, translatedEvent } from "@/components/catalog-ui";
+import { lineupNames, posterFacts } from "@/components/poster-facts";
 import { MapExplorer } from "@/components/map-explorer";
 import { requestTime } from "@/components/request-time";
 import {
@@ -9,7 +10,7 @@ import {
   isScheduled,
   isUpcoming,
 } from "@/core/cities";
-import { localizePath, localizedTitle } from "@/core/i18n";
+import { localizePath } from "@/core/i18n";
 import { locationFor } from "@/core/locations";
 import { pageMetadata } from "@/core/site";
 import { getCatalog } from "@/db/catalog";
@@ -56,10 +57,14 @@ export default async function MapPage() {
       return venue
         ? [
             {
-              slug: event.slug,
-              title: localizedTitle(event, locale),
+              event: translatedEvent(event, locale),
+              poster: posterFacts(
+                translatedEvent(event, locale),
+                venue,
+                lineupNames(event, catalog.djs),
+                locale,
+              ),
               venueName: venue.name,
-              startsAt: event.startsAt,
               timezone: venue.timezone,
             },
           ]

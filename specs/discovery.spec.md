@@ -350,4 +350,4 @@ was observed in production; Google's exact discovery mechanism is unproven.
 
 ## Map exploration preview
 
-The noindex `/map` and `/en/map` preview plots upcoming scheduled nights as city-level counts at approximate GeoNames city centres, never as venue coordinates. Cities without a known centre are named separately. The map links to the matching event and city pages, supports both locales and themes, and keeps tile-provider and GeoNames attribution visible. Demo inventory remains clearly fictional. The map is a separate preview; list filters are not yet shared with it.
+The noindex `/map` and `/en/map` preview plots upcoming scheduled nights as city-level counts at approximate GeoNames city centres, never as venue coordinates. Cities without a known centre are named separately. Selecting a city opens a scrollable, dismissible map-anchored popup with flyer artwork and links to its events and city page. The map supports both locales and themes, and keeps tile-provider and GeoNames attribution visible. Demo inventory remains clearly fictional. The map is a separate preview; list filters are not yet shared with it.

@@ -1005,3 +1005,82 @@
     padding-top: 14px;
   }
 }
+
+/* Mobile: reserve a compact, stable strip for event cards. */
+@media (max-width: 999px) {
+  .nm-panel {
+    flex-basis: 132px;
+    padding: 6px 0;
+  }
+  .nm-panel-head {
+    display: none;
+  }
+  .nm-strip {
+    padding: 0 10px 2px;
+    gap: 8px;
+  }
+  .nm-card {
+    grid-template-columns: 48px minmax(0, 1fr) 44px;
+    align-items: center;
+    padding: 7px;
+    column-gap: 8px;
+    row-gap: 4px;
+  }
+  .nm-card-body {
+    gap: 1px;
+    overflow: hidden;
+  }
+  .nm-card-title {
+    font-size: 20px;
+  }
+  .nm-card-lineup {
+    font-size: 12px;
+  }
+  .nm-card-art {
+    width: 48px;
+    align-self: center;
+  }
+  .nm-card-genres,
+  .nm-card-taste {
+    display: none;
+  }
+  .nm-card-actions {
+    grid-column: 3;
+    grid-row: 1;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .nm-card-listen,
+  .nm-card-tickets {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+  .nm-card-listen span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .nm-card-tickets {
+    font-size: 0;
+    gap: 0;
+  }
+  .nm-card-tickets .ui-icon {
+    width: 19px;
+    height: 19px;
+  }
+  .nm-unmapped {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    margin: 3px 10px 0;
+  }
+  .nm-panel:has(.nm-unmapped) {
+    padding-block: 0;
+  }
+}

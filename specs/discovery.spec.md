@@ -449,6 +449,8 @@ points are approximate city rings. Tiles come from one itstiles.com server
 list the nights. SoundCloud's widget is light in both themes. Map interaction
 is not keyboard-complete (the cards and the list are the accessible path).
 
-The night-card panel reserves a fixed 280px height in every selection and empty
-state. Ticket/listening buttons and taste rows cannot resize the map canvas:
+The night-card panel reserves a fixed 132px on phones/tablets and 280px on
+desktop in every selection and empty state. Mobile shows only the swipeable
+cards, without the panel heading or area listening button; per-event listening
+and ticket actions stay at least 44px and sit beside the card facts. Ticket/listening buttons and taste rows cannot resize the map canvas:
 otherwise a viewport-edge venue can repeatedly enter/leave the visible bounds.

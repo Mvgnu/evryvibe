@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   pgTable,
+  doublePrecision,
   boolean,
   check,
   uuid,
@@ -35,6 +36,9 @@ export const venues = pgTable("venues", {
   country: text().notNull(),
   address: text().notNull(),
   timezone: text().notNull(),
+  latitude: doublePrecision(),
+  longitude: doublePrecision(),
+  locationSourceUrl: text("location_source_url"),
   description: text().notNull(),
   translations: jsonb().$type<DescriptionTranslations>().notNull().default({}),
   imageUrl: text("image_url"),

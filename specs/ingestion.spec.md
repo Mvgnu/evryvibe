@@ -130,3 +130,12 @@ SoundCloud found" and an empty description are valid outcomes.
 ## Reviewed DJ identity merges
 
 Confirmed duplicate DJs are merged transactionally under the catalogue publication lock. Preserve lineup positions and reconciliation history, record the retired DJ, affected lineups and reconciliation task snapshots with the evidence, and keep old slugs as permanent redirects. Reconciliation tasks with unrelated checks remain open. Publication rejects a retired slug as a new DJ, while existing lineup references resolve it to the canonical DJ; duplicate aliases in a lineup are rejected. Ambiguous identities remain separate until supported by evidence.
+
+## Venue coordinates rollout
+
+The public-map release can pre-apply `ops/sql/venue-coordinates.sql` without
+artist migrations. Migration 0014 uses `IF NOT EXISTS` so a later full migration
+run still applies earlier artist migrations instead of skipping their journal
+entries. Venue latitude/longitude and the OSM object source URL are nullable;
+only reviewed venue or matching building/address results are stored, never a
+street or city centroid as an exact venue point.

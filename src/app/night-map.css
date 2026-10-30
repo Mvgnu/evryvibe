@@ -1015,6 +1015,9 @@
   .nm-panel-head {
     display: none;
   }
+  .nm-legend-map:has(.nm-demo) {
+    display: flex;
+  }
   .nm-strip {
     padding: 0 10px 2px;
     gap: 8px;

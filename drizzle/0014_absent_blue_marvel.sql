@@ -1,3 +1,3 @@
-ALTER TABLE "venues" ADD COLUMN "latitude" double precision;--> statement-breakpoint
-ALTER TABLE "venues" ADD COLUMN "longitude" double precision;--> statement-breakpoint
-ALTER TABLE "venues" ADD COLUMN "location_source_url" text;
+ALTER TABLE "venues" ADD COLUMN IF NOT EXISTS "latitude" double precision;--> statement-breakpoint
+ALTER TABLE "venues" ADD COLUMN IF NOT EXISTS "longitude" double precision;--> statement-breakpoint
+ALTER TABLE "venues" ADD COLUMN IF NOT EXISTS "location_source_url" text;

@@ -128,3 +128,23 @@ test("old /map links open the full-screen map with their filters", async ({
     page.getByRole("button", { name: "Karte schließen, zur Liste" }),
   ).toBeVisible();
 });
+
+test("card panel content cannot resize the fullscreen map", async ({
+  page,
+}) => {
+  await page.goto("/?when=week#karte");
+  const stage = page.getByRole("region", { name: "Karte der Nächte" });
+  await expect.poll(() => stagePosition(page)).toBe("fixed");
+  await expect(stage.locator(".nm-card-actions").first()).toBeVisible();
+  const canvasHeight = () =>
+    stage
+      .locator(".nm-canvas")
+      .evaluate((element) => element.getBoundingClientRect().height);
+  await page.evaluate(() => document.fonts.ready);
+  const populatedHeight = await canvasHeight();
+  await page.goto("/?q=no-matching-night-for-layout-regression#karte");
+  await expect.poll(() => stagePosition(page)).toBe("fixed");
+  await expect(stage.locator(".nm-empty")).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  expect(Math.abs((await canvasHeight()) - populatedHeight)).toBeLessThan(1);
+});

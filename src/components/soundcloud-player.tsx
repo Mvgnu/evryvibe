@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   connectWidget,
@@ -24,7 +25,11 @@ import {
 export type PlayerStatus =
   "idle" | "loading" | "playing" | "paused" | "blocked" | "empty" | "error";
 
-export function useSoundcloudPlayer(url: string | null, votes: ReelVote[]) {
+export function useSoundcloudPlayer(
+  inputUrl: string | null,
+  votes: ReelVote[],
+) {
+  const url = SOUNDCLOUD_EMBEDS_ENABLED ? inputUrl : null;
   const iframe = useRef<HTMLIFrameElement>(null);
   const widget = useRef<Widget | null>(null);
   const loaded = useRef<string | null>(null);

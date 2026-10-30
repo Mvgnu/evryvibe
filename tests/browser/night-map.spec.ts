@@ -87,6 +87,10 @@ test("the night map shows the filtered nights, opens full screen and leaves one 
 test("listening on the map asks for SoundCloud first and loads nothing before", async ({
   page,
 }) => {
+  test.skip(
+    process.env.NEXT_PUBLIC_EVRYVIBE_SC_PREVIEW !== "1",
+    "SoundCloud is disabled; this requires the explicit local permission preview.",
+  );
   const soundcloud: string[] = [];
   page.on("request", (request) => {
     if (/soundcloud|sndcdn/.test(request.url())) soundcloud.push(request.url());
@@ -147,4 +151,48 @@ test("card panel content cannot resize the fullscreen map", async ({
   await expect(stage.locator(".nm-empty")).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   expect(Math.abs((await canvasHeight()) - populatedHeight)).toBeLessThan(1);
+});
+
+test("map listening keeps the same iframe through an event and browser back", async ({
+  page,
+}) => {
+  test.skip(
+    process.env.NEXT_PUBLIC_EVRYVIBE_SC_PREVIEW !== "1",
+    "SoundCloud is disabled; this requires the explicit local permission preview.",
+  );
+  await page.route(/https:\/\/w\.soundcloud\.com\//, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/html",
+      body: "<p>SoundCloud fixture</p>",
+    }),
+  );
+  await page.goto("/?when=week#karte");
+  const stage = page.getByRole("region", { name: "Karte der Nächte" });
+  await stage.locator(".nm-card-listen").first().click();
+  const dock = page.getByRole("region", { name: "SoundCloud-Player" });
+  await dock
+    .getByRole("button", { name: "SoundCloud laden und abspielen" })
+    .click();
+  const iframe = page.locator(".map-player-shell iframe");
+  await expect(iframe).toHaveCount(1);
+  const original = await iframe.elementHandle();
+  if (!original) throw new Error("Player iframe was not mounted");
+  const originalSrc = await iframe.getAttribute("src");
+  await stage.locator(".nm-card-title a").first().click();
+  await expect(page).toHaveURL(/\/events\//);
+  await expect(dock).toBeVisible();
+  expect(await original.evaluate((element) => element.isConnected)).toBe(true);
+  await expect(iframe).toHaveAttribute("src", originalSrc ?? "");
+  await page.goBack();
+  await expect(page).toHaveURL(/#karte$/);
+  await expect.poll(() => stagePosition(page)).toBe("fixed");
+  expect(await original.evaluate((element) => element.isConnected)).toBe(true);
+  await expect(iframe).toHaveCount(1);
+  await page.goForward();
+  await expect(page).toHaveURL(/\/events\//);
+  expect(await original.evaluate((element) => element.isConnected)).toBe(true);
+  await dock.getByRole("button", { name: "Player schließen" }).click();
+  await expect(page.locator(".map-player-shell")).toHaveCount(0);
+  await expect(page.locator("iframe")).toHaveCount(0);
 });

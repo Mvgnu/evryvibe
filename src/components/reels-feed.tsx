@@ -1,6 +1,9 @@
 "use client";
 
+import { useMapListening } from "@/components/map-listening";
+
 import Link from "next/link";
+import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import {
   useCallback,
   useEffect,
@@ -78,6 +81,7 @@ function placeLabel(settings: ReelSettings | null, locale: Locale) {
 
 export function ReelsFeed({ reels, locale }: Props) {
   const { consent, accept } = useProviderConsent("soundcloud");
+  const mapSession = useMapListening();
   const [phase, setPhase] = useState<Phase>("loading");
   const [settings, setSettings] = useState<ReelSettings | null>(null);
   const [votes, setVotes] = useState<ReelVote[]>([]);
@@ -100,10 +104,20 @@ export function ReelsFeed({ reels, locale }: Props) {
         rankReels(reels, stored.settings, stored.votes, nextSeed, Date.now())
           .reels,
       );
-      setPhase("feed");
+      setPhase("setup");
     } else setPhase("setup");
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [reels]);
+
+  useEffect(() => {
+    const sync = () => setVotes(load().votes);
+    window.addEventListener("evryvibe-reels-change", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("evryvibe-reels-change", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   // Setup and feed each start at the top; the setup's scroll position would
   // otherwise leave the feed half off-screen on short phones.
@@ -118,6 +132,7 @@ export function ReelsFeed({ reels, locale }: Props) {
   }, [toast]);
 
   const start = (next: ReelSettings) => {
+    mapSession.setListening(null);
     if (consent !== "accepted") accept();
     setSettings(next);
     save(next, votes);
@@ -140,7 +155,7 @@ export function ReelsFeed({ reels, locale }: Props) {
         : null,
       at: Date.now(),
     };
-    const nextVotes = addVote(votes, entry);
+    const nextVotes = addVote(load().votes, entry);
     setVotes(nextVotes);
     save(settings, nextVotes);
     if (settings) {
@@ -165,6 +180,35 @@ export function ReelsFeed({ reels, locale }: Props) {
     setIndex(0);
   };
 
+  if (!SOUNDCLOUD_EMBEDS_ENABLED)
+    return (
+      <section className="reels-intro">
+        <h1>Reels</h1>
+        <p>
+          {t(
+            locale,
+            "SoundCloud-Embeds sind derzeit deaktiviert. Du kannst die Künstler direkt auf SoundCloud anhören.",
+            "SoundCloud embeds are currently disabled. Listen to the artists directly on SoundCloud.",
+          )}
+        </p>
+        <Link className="button" href={localizePath("/", locale)}>
+          {t(locale, "Nächte entdecken", "Explore nights")}
+        </Link>
+        <ul>
+          {reels.slice(0, 20).map((reel) => (
+            <li key={reel.dj.id}>
+              <a
+                href={reel.dj.soundcloudUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {reel.dj.name} · SoundCloud ↗
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
   if (phase === "loading")
     return <div className="reels-shell" aria-busy="true" />;
   if (phase === "setup")
@@ -482,8 +526,11 @@ function Feed({
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   const active = queue[index];
+  const mapListening = useMapListening();
   const player = useSoundcloudPlayer(
-    consent === "accepted" ? (active?.dj.soundcloudUrl ?? null) : null,
+    consent === "accepted" && !mapListening.listening
+      ? (active?.dj.soundcloudUrl ?? null)
+      : null,
     votes,
   );
   const nights = useMemo(() => likedNights(queue, votes), [queue, votes]);
@@ -548,6 +595,15 @@ function Feed({
 
   return (
     <div className="reels-shell">
+      {mapListening.listening && (
+        <button
+          type="button"
+          className="button map-player-handoff"
+          onClick={() => mapListening.setListening(null)}
+        >
+          {t(locale, "Zum Reels-Player wechseln", "Switch to the Reels player")}
+        </button>
+      )}
       <div className="reels-bar">
         <button type="button" className="reels-place" onClick={onChangePlace}>
           <span className="visually-hidden">

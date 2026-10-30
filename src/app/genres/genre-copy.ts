@@ -91,7 +91,7 @@ export function genreAbout(genre: CanonicalGenre, locale: Locale): string {
       : "";
   return `${sound}${copy(
     locale,
-    `Hier stehen DJs, die Gigs auf EVRYVIBE haben und ${genre.name} spielen: laut ihrem Profil oder, wenn das Profil kein Genre nennt, laut den Nächten, auf denen sie gespielt haben oder spielen werden. DJs mit SoundCloud-Profil stehen oben; ihr Player lädt direkt von SoundCloud, erst nach deiner Zustimmung. Termine stammen aus veröffentlichten Ankündigungen, die Quelle steht auf jeder Eventseite. Weitere DJs und Partys können fehlen.`,
-    `This page lists DJs with gigs on EVRYVIBE who play ${genre.name}: according to their profile or, where the profile names no genre, the nights they played or will play. DJs with a SoundCloud profile come first; their player loads straight from SoundCloud, only after you agree. Dates come from published announcements, and each event page links to its source. Other DJs and parties may be missing.`,
+    `Hier stehen DJs, die Gigs auf EVRYVIBE haben und ${genre.name} spielen: laut ihrem Profil oder, wenn das Profil kein Genre nennt, laut den Nächten, auf denen sie gespielt haben oder spielen werden. DJs mit SoundCloud-Profil stehen oben; ihre SoundCloud-Profile öffnen sich als externe Links. Termine stammen aus veröffentlichten Ankündigungen, die Quelle steht auf jeder Eventseite. Weitere DJs und Partys können fehlen.`,
+    `This page lists DJs with gigs on EVRYVIBE who play ${genre.name}: according to their profile or, where the profile names no genre, the nights they played or will play. DJs with a SoundCloud profile come first; their SoundCloud profiles open through external links. Dates come from published announcements, and each event page links to its source. Other DJs and parties may be missing.`,
   )}`;
 }

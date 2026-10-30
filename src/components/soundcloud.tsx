@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import { Icon } from "@/components/icon";
 import { useProviderConsent } from "@/components/media-consent";
 import type { Locale } from "@/core/i18n";
@@ -34,6 +35,18 @@ export function SoundcloudPlayer({
   if (!parsed.success) return null;
   const profile = parsed.data;
   const de = locale === "de";
+  if (!SOUNDCLOUD_EMBEDS_ENABLED)
+    return (
+      <a
+        className="sc-link"
+        href={profile}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {de ? "Auf SoundCloud anhören" : "Listen on SoundCloud"}{" "}
+        <Icon name="arrow-up-right" />
+      </a>
+    );
   return (
     <div className={`sc-player sc-${size}`}>
       {consent === "accepted" ? (
@@ -115,6 +128,18 @@ export function ListenButton({
 }) {
   const { open, toggle } = useListening(id);
   const de = locale === "de";
+  if (!SOUNDCLOUD_EMBEDS_ENABLED)
+    return (
+      <a
+        className="listen-toggle"
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${name} auf SoundCloud`}
+      >
+        SoundCloud <Icon name="arrow-up-right" />
+      </a>
+    );
   return (
     <>
       <button

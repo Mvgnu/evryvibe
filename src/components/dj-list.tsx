@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "@/components/icon";
 import { copy } from "@/components/catalog-ui";
 import type { DjRow } from "@/components/dj-directory-view";
 import { formatCount } from "@/components/dj-directory-view";
@@ -22,10 +23,12 @@ function Row({
   row: { entry, sound, where, when },
   locale,
   heading: Heading,
+  embeddable,
 }: {
   row: DjRow;
   locale: Locale;
   heading: "h3" | "h4";
+  embeddable: boolean;
 }) {
   const { dj } = entry;
   const motif = entry.genres[0]?.motif ?? "techno";
@@ -43,16 +46,27 @@ function Row({
         {when && <p className="dj-row-when">{when}</p>}
         {dj.soundcloudUrl && (
           <div className="dj-row-action">
-            <ListenButton
-              id={dj.slug}
-              url={dj.soundcloudUrl}
-              name={dj.name}
-              locale={locale}
-            />
+            {embeddable ? (
+              <ListenButton
+                id={dj.slug}
+                url={dj.soundcloudUrl}
+                name={dj.name}
+                locale={locale}
+              />
+            ) : (
+              <a
+                className="listen-toggle"
+                href={dj.soundcloudUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                SoundCloud <Icon name="arrow-up-right" />
+              </a>
+            )}
           </div>
         )}
       </div>
-      {dj.soundcloudUrl && (
+      {dj.soundcloudUrl && embeddable && (
         <ListenPanel
           id={dj.slug}
           url={dj.soundcloudUrl}
@@ -70,6 +84,7 @@ export function DjList({
   others,
   locale,
   level = 2,
+  embeddable = true,
 }: {
   rows: DjRow[];
   /** Totals of the whole filtered result, not just the shown rows. */
@@ -78,6 +93,7 @@ export function DjList({
   locale: Locale;
   /** Heading level of the group headings; rows sit one below. */
   level?: 2 | 3;
+  embeddable?: boolean;
 }) {
   const groups = [
     {
@@ -120,6 +136,7 @@ export function DjList({
                   row={row}
                   locale={locale}
                   heading={rowHeading}
+                  embeddable={embeddable}
                 />
               ))}
             </ul>

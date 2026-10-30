@@ -8,6 +8,8 @@
 // the DJs of those nights, ordered by the visitor's Reels taste.
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { MapDjBrowser } from "@/components/map-dj-browser";
+import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import {
   useCallback,
   useEffect,
@@ -18,28 +20,17 @@ import {
 } from "react";
 import { Artwork } from "@/components/artwork";
 import { Icon } from "@/components/icon";
-import { useProviderConsent } from "@/components/media-consent";
 import type { MapNight, NightMapData } from "@/components/night-map-data";
 import type {
   MapCommand,
   MapFocus,
   PlacePoint,
 } from "@/components/night-map-view";
-import { loadReelState, saveReelVotes } from "@/components/reel-storage";
-import {
-  useSoundcloudPlayer,
-  type PlayerStatus,
-} from "@/components/soundcloud-player";
+import { loadReelState } from "@/components/reel-storage";
+import { useMapListening, type ListenItem } from "@/components/map-listening";
 import { localizePath, type Locale } from "@/core/i18n";
 import { distanceKm, locationById } from "@/core/locations";
-import type { ListenDj } from "@/core/night-map";
-import {
-  addVote,
-  rankListening,
-  tasteMatch,
-  tasteOf,
-  type ReelVote,
-} from "@/core/reels";
+import { rankListening, tasteMatch, tasteOf } from "@/core/reels";
 import type { NightFlavor } from "@/lib/map-themes";
 
 const NightMapView = dynamic(() => import("@/components/night-map-view"), {
@@ -57,8 +48,6 @@ const MAX_CARDS = 30;
 const NEAR_KM = 60;
 
 type Position = { latitude: number; longitude: number };
-type ListenItem = { dj: ListenDj; night: MapNight };
-type Listening = { items: ListenItem[]; index: number };
 type Area = { latitude: number; longitude: number; radiusKm: number };
 
 function distanceText(km: number, approximate: boolean, locale: Locale) {
@@ -96,8 +85,15 @@ export function NightExplorer({
   stageFilters: ReactNode;
   list: ReactNode;
 }) {
-  const { consent, accept } = useProviderConsent("soundcloud");
-  const [votes, setVotes] = useState<ReelVote[]>([]);
+  const {
+    listening,
+    setListening,
+    current,
+    votes,
+    setVotes,
+    requestedPlace,
+    clearRequestedPlace,
+  } = useMapListening();
   const [area, setArea] = useState<Area | null>(null);
   const [wantMap, setWantMap] = useState(false);
   const [ready, setReady] = useState(false);
@@ -109,7 +105,7 @@ export function NightExplorer({
   const [position, setPosition] = useState<Position | null>(null);
   const [locating, setLocating] = useState(false);
   const [command, setCommand] = useState<MapCommand | null>(null);
-  const [listening, setListening] = useState<Listening | null>(null);
+  const [browsing, setBrowsing] = useState<MapNight | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   // Stays in the panel until the next search: nothing near, and the closest.
   const [nearNote, setNearNote] = useState<{
@@ -140,7 +136,7 @@ export function NightExplorer({
         longitude: origin.longitude,
         radiusKm: stored.settings.radiusKm,
       });
-    if (window.location.hash === "#karte") setExpanded(true);
+    if (window.location.hash.split("#").includes("karte")) setExpanded(true);
     /* eslint-enable react-hooks/set-state-in-effect */
     const start = () => setWantMap(true);
     if (typeof window.requestIdleCallback === "function") {
@@ -149,7 +145,7 @@ export function NightExplorer({
     }
     const timer = window.setTimeout(start, 300);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [setVotes]);
 
   useEffect(() => {
     const update = () =>
@@ -169,7 +165,7 @@ export function NightExplorer({
       observer.disconnect();
       window.removeEventListener("storage", onStorage);
     };
-  }, []);
+  }, [setVotes]);
 
   useEffect(() => {
     if (!toast) return;
@@ -259,12 +255,6 @@ export function NightExplorer({
   const hiddenCards = panelNights.length - cards.length;
 
   // ── Listening ──
-  const current = listening?.items[listening.index] ?? null;
-  const player = useSoundcloudPlayer(
-    consent === "accepted" && current ? current.dj.soundcloudUrl : null,
-    votes,
-  );
-
   const queueFor = useCallback(
     (nights: readonly MapNight[], first: ListenItem[] = []) => {
       const seen = new Set(first.map((item) => item.dj.id));
@@ -300,77 +290,23 @@ export function NightExplorer({
   );
 
   const listenArea = () => {
+    if (!SOUNDCLOUD_EMBEDS_ENABLED) return;
     const items = queueFor(panelNights);
     if (items.length) setListening({ items, index: 0 });
   };
   // A night's own "Anhören" plays its lineup in billing order, then carries
   // on with the other DJs on the map.
   const listenNight = (night: MapNight) => {
+    if (!SOUNDCLOUD_EMBEDS_ENABLED) {
+      setBrowsing(night);
+      return;
+    }
     const items = queueFor(
       viewNights,
       night.listen.map((dj) => ({ dj, night })),
     );
     if (items.length) setListening({ items, index: 0 });
   };
-  const listeningRef = useRef(listening);
-  useEffect(() => {
-    listeningRef.current = listening;
-  });
-  const next = useCallback(() => {
-    const value = listeningRef.current;
-    if (!value) return;
-    if (value.index + 1 < value.items.length) {
-      setListening({ ...value, index: value.index + 1 });
-      return;
-    }
-    setListening(null);
-    setToast(
-      t(
-        locale,
-        "Alle DJs hier gehört. Verschieb die Karte für mehr.",
-        "That's every DJ here. Move the map for more.",
-      ),
-    );
-  }, [locale]);
-  const vote = (value: 1 | -1) => {
-    if (!current) return;
-    const sound = player.sound;
-    const entry: ReelVote = {
-      djId: current.dj.id,
-      value,
-      genres: [
-        ...new Set([...current.dj.genres, ...(sound?.genres ?? [])]),
-      ].slice(0, 40),
-      sound: sound
-        ? { url: sound.url, tags: sound.tags, key: sound.key }
-        : null,
-      at: Date.now(),
-    };
-    const nextVotes = addVote(votes, entry);
-    setVotes(nextVotes);
-    saveReelVotes(nextVotes);
-    if (value === 1)
-      setToast(
-        t(
-          locale,
-          `Gemerkt: ${current.dj.name}. Auch in Reels.`,
-          `Saved: ${current.dj.name}. In Reels too.`,
-        ),
-      );
-    else next();
-  };
-
-  // A profile without public uploads: move on instead of standing still.
-  // A DJ who has played on this visit is never skipped for it.
-  const played = useRef<string | null>(null);
-  const currentDj = current?.dj.id ?? null;
-  useEffect(() => {
-    if (player.status === "playing") played.current = currentDj;
-    if (player.status !== "empty" || played.current === currentDj) return;
-    const timer = window.setTimeout(next, 3500);
-    return () => window.clearTimeout(timer);
-  }, [player.status, currentDj, next]);
-
   // The playing DJ's night: ring on the map, card in the strip.
   const playingPlace = current?.night.place ?? null;
   const playingSlug = current?.night.slug ?? null;
@@ -389,6 +325,17 @@ export function NightExplorer({
         behavior: "smooth",
       });
   }, [playingSlug]);
+
+  useEffect(() => {
+    if (!requestedPlace) return;
+    // Apply the root player's explicit navigation command to this mounted map.
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setExpanded(true);
+    setSelected(requestedPlace.key);
+    send({ kind: "place", key: requestedPlace.key });
+    clearRequestedPlace();
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [requestedPlace, send, clearRequestedPlace]);
 
   // A new choice starts its strip at the first night.
   useEffect(() => {
@@ -423,19 +370,24 @@ export function NightExplorer({
   const expand = () => {
     setExpanded(true);
     if (window.location.hash !== "#karte")
-      window.history.replaceState(null, "", "#karte");
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search + "#karte",
+      );
   };
   const collapse = useCallback(() => {
-    if (window.location.hash === "#karte")
+    if (window.location.hash.split("#").includes("karte"))
       window.history.replaceState(
-        null,
+        window.history.state,
         "",
         window.location.pathname + window.location.search,
       );
     setExpanded(false);
   }, []);
   useEffect(() => {
-    const onPop = () => setExpanded(window.location.hash === "#karte");
+    const onPop = () =>
+      setExpanded(window.location.hash.split("#").includes("karte"));
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -912,29 +864,12 @@ export function NightExplorer({
             </p>
           )}
         </section>
-
-        {listening && current && (
-          <ListenDock
+        {browsing && (
+          <MapDjBrowser
+            key={browsing.id}
+            night={browsing}
             locale={locale}
-            current={current}
-            position={`${listening.index + 1} / ${listening.items.length}`}
-            consent={consent}
-            accept={accept}
-            status={player.status}
-            soundTitle={player.sound?.title ?? null}
-            soundUrl={player.sound?.url ?? null}
-            frame={player.frame}
-            liked={(taste.djs.get(current.dj.id) ?? 0) > 0}
-            onToggle={player.toggle}
-            onNext={next}
-            onLike={() => vote(1)}
-            onDislike={() => vote(-1)}
-            onShowNight={() => {
-              if (!current.night.place) return;
-              setSelected(current.night.place);
-              send({ kind: "place", key: current.night.place });
-            }}
-            onClose={() => setListening(null)}
+            onClose={() => setBrowsing(null)}
           />
         )}
       </div>
@@ -1044,21 +979,35 @@ function NightCard({
           </p>
         )}
       </div>
-      {(night.listen.length > 0 || night.ticketUrl) && (
+      {(night.artists.length > 0 || night.ticketUrl) && (
         <div className="nm-card-actions">
-          {night.listen.length > 0 && (
+          {(SOUNDCLOUD_EMBEDS_ENABLED
+            ? night.listen.length > 0
+            : night.artists.length > 0) && (
             <button
               type="button"
               className="nm-card-listen"
               onClick={onListen}
-              aria-label={t(
-                locale,
-                `${night.title} anhören: ${night.listen.map((dj) => dj.name).join(", ")}`,
-                `Listen to ${night.title}: ${night.listen.map((dj) => dj.name).join(", ")}`,
-              )}
+              aria-label={
+                SOUNDCLOUD_EMBEDS_ENABLED
+                  ? t(
+                      locale,
+                      `${night.title} anhören: ${night.listen.map((dj) => dj.name).join(", ")}`,
+                      `Listen to ${night.title}: ${night.listen.map((dj) => dj.name).join(", ")}`,
+                    )
+                  : t(
+                      locale,
+                      `Line-up von ${night.title} ansehen`,
+                      `View ${night.title} lineup`,
+                    )
+              }
             >
-              <Icon name="play" />
-              <span aria-hidden="true">{t(locale, "Anhören", "Listen")}</span>
+              <Icon name={SOUNDCLOUD_EMBEDS_ENABLED ? "play" : "wave"} />
+              <span>
+                {SOUNDCLOUD_EMBEDS_ENABLED
+                  ? t(locale, "Anhören", "Listen")
+                  : "DJs"}
+              </span>
             </button>
           )}
           {night.ticketUrl ? (
@@ -1075,207 +1024,5 @@ function NightCard({
         </div>
       )}
     </li>
-  );
-}
-
-function ListenDock({
-  locale,
-  current,
-  position,
-  consent,
-  accept,
-  status,
-  soundTitle,
-  soundUrl,
-  frame,
-  liked,
-  onToggle,
-  onNext,
-  onLike,
-  onDislike,
-  onShowNight,
-  onClose,
-}: {
-  locale: Locale;
-  current: ListenItem;
-  position: string;
-  consent: "unset" | "accepted" | "rejected";
-  accept: () => void;
-  status: PlayerStatus;
-  soundTitle: string | null;
-  soundUrl: string | null;
-  frame: ReactNode;
-  liked: boolean;
-  onToggle: () => void;
-  onNext: () => void;
-  onLike: () => void;
-  onDislike: () => void;
-  onShowNight: () => void;
-  onClose: () => void;
-}) {
-  const { dj, night } = current;
-  const statusText =
-    status === "playing"
-      ? t(locale, "Läuft", "Playing")
-      : status === "paused"
-        ? t(locale, "Pausiert", "Paused")
-        : status === "blocked"
-          ? t(locale, "Tippen zum Abspielen", "Tap to play")
-          : status === "empty"
-            ? t(
-                locale,
-                "Keine öffentlichen Tracks – weiter",
-                "No public tracks – skipping",
-              )
-            : status === "error"
-              ? t(locale, "Player antwortet nicht", "Player not responding")
-              : t(locale, "Lädt …", "Loading …");
-  const closeButton = (
-    <button
-      type="button"
-      className="nm-icon-button"
-      onClick={onClose}
-      aria-label={t(locale, "Player schließen", "Close player")}
-    >
-      <Icon name="close" />
-    </button>
-  );
-  if (consent !== "accepted")
-    return (
-      <div
-        className="nm-dock nm-dock-consent"
-        role="region"
-        aria-label={t(locale, "SoundCloud-Player", "SoundCloud player")}
-      >
-        <div className="nm-dock-copy">
-          <p className="nm-dock-kicker">
-            {t(locale, "Anhören", "Listen")} · {dj.name}
-          </p>
-          <p>
-            {t(
-              locale,
-              "Dafür lädt EVRYVIBE den Player von SoundCloud. SoundCloud erhält dabei deine Verbindungsdaten und kann Cookies setzen. ",
-              "This loads SoundCloud's player. SoundCloud receives your connection details and may set cookies. ",
-            )}
-            <Link href={localizePath("/datenschutz", locale)}>
-              {t(locale, "Datenschutz", "Privacy")}
-            </Link>
-          </p>
-        </div>
-        <div className="nm-dock-choices">
-          <button
-            type="button"
-            className="button button-primary"
-            onClick={accept}
-          >
-            <Icon name="play" />
-            {t(
-              locale,
-              "SoundCloud laden und abspielen",
-              "Load SoundCloud and play",
-            )}
-          </button>
-          <a
-            className="chip-button"
-            href={dj.soundcloudUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t(locale, "Auf SoundCloud anhören", "Listen on SoundCloud")}
-            <Icon name="arrow-up-right" />
-          </a>
-          {closeButton}
-        </div>
-      </div>
-    );
-  return (
-    <div
-      className="nm-dock"
-      role="region"
-      aria-label={t(locale, "SoundCloud-Player", "SoundCloud player")}
-    >
-      <div className="nm-dock-bar">
-        <button
-          type="button"
-          className="nm-dock-play"
-          onClick={onToggle}
-          aria-label={
-            status === "playing"
-              ? t(locale, "Pause", "Pause")
-              : t(locale, "Abspielen", "Play")
-          }
-        >
-          <Icon name={status === "playing" ? "pause" : "play"} />
-        </button>
-        <p className="nm-dock-kicker" aria-live="polite">
-          {statusText} · {position}
-        </p>
-        {/* The whole block is one target: it shows the DJ's night on the map. */}
-        <button
-          type="button"
-          className="nm-dock-now"
-          onClick={onShowNight}
-          aria-label={t(
-            locale,
-            `${dj.name}: ${night.when}, ${night.venue}, ${night.city} – auf der Karte zeigen`,
-            `${dj.name}: ${night.when}, ${night.venue}, ${night.city} – show on the map`,
-          )}
-        >
-          <span className="nm-dock-dj">
-            <span className="nm-dock-name">{dj.name}</span>
-            {soundTitle && <span className="nm-dock-track">{soundTitle}</span>}
-          </span>
-          <span className="nm-dock-night">
-            {night.when} · {night.venue} · {night.city}
-          </span>
-        </button>
-        <div className="nm-dock-buttons">
-          <button
-            type="button"
-            className="nm-icon-button"
-            onClick={onLike}
-            aria-pressed={liked}
-            aria-label={
-              liked
-                ? t(locale, "Gemerkt", "Saved")
-                : t(locale, `${dj.name} liken`, `Like ${dj.name}`)
-            }
-          >
-            <Icon name="heart" className={liked ? "filled" : ""} />
-          </button>
-          <button
-            type="button"
-            className="nm-icon-button"
-            onClick={onDislike}
-            aria-label={t(locale, "Nicht meins", "Not mine")}
-          >
-            <Icon name="thumb-down" />
-          </button>
-          <button
-            type="button"
-            className="nm-icon-button"
-            onClick={onNext}
-            aria-label={t(locale, "Nächster DJ", "Next DJ")}
-          >
-            <Icon name="skip" />
-          </button>
-          <a
-            className="nm-icon-button nm-dock-profile"
-            href={soundUrl ?? dj.soundcloudUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={t(
-              locale,
-              `${dj.name} auf SoundCloud`,
-              `${dj.name} on SoundCloud`,
-            )}
-          >
-            <Icon name="arrow-up-right" />
-          </a>
-          {closeButton}
-        </div>
-      </div>
-      <div className="nm-dock-frame">{frame}</div>
-    </div>
   );
 }

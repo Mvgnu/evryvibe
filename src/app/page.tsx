@@ -30,7 +30,6 @@ import {
 import { requestTime } from "@/components/request-time";
 import { NightExplorer } from "@/components/night-explorer";
 import { nightMapData } from "@/components/night-map-data";
-import "./night-map.css";
 
 const homeDescription = (locale: Locale) =>
   copy(

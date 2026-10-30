@@ -1006,84 +1006,163 @@
   }
 }
 
-/* Mobile: reserve a compact, stable strip for event cards. */
-@media (max-width: 999px) {
-  .nm-panel {
-    flex-basis: 132px;
-    padding: 6px 0;
+/* Reserve the same compact, stable event strip at every screen size. */
+.nm-panel {
+  flex-basis: 132px;
+  padding: 6px 0;
+}
+.nm-panel-head {
+  display: none;
+}
+.nm-legend-map:has(.nm-demo) {
+  display: flex;
+}
+.nm-strip {
+  padding: 0 10px 2px;
+  gap: 8px;
+}
+.nm-card {
+  grid-template-columns: 48px minmax(0, 1fr) 44px;
+  align-items: center;
+  padding: 7px;
+  column-gap: 8px;
+  row-gap: 4px;
+}
+.nm-card-body {
+  gap: 1px;
+  overflow: hidden;
+}
+.nm-card-title {
+  font-size: 20px;
+}
+.nm-card-lineup {
+  font-size: 12px;
+}
+.nm-card-art {
+  width: 48px;
+  align-self: center;
+}
+.nm-card-genres,
+.nm-card-taste {
+  display: none;
+}
+.nm-card-actions {
+  grid-column: 3;
+  grid-row: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+.nm-card-listen,
+.nm-card-tickets {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  justify-content: center;
+  padding: 0;
+}
+.nm-card-listen span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.nm-card-tickets {
+  font-size: 0;
+  gap: 0;
+}
+.nm-card-tickets .ui-icon {
+  width: 19px;
+  height: 19px;
+}
+.nm-unmapped {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  margin: 3px 10px 0;
+}
+.nm-panel:has(.nm-unmapped) {
+  padding-block: 0;
+}
+
+/* The playing iframe belongs to the root layout, across all public pages. */
+.map-player-shell {
+  position: fixed;
+  z-index: 90;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.map-player-shell .nm-dock {
+  position: relative;
+  max-height: none;
+}
+body:has(.map-player-shell) {
+  padding-bottom: var(--map-player-h, var(--dock-h));
+}
+.night-explorer.is-expanded.is-listening .ne-stage {
+  padding-bottom: var(--map-player-h, var(--dock-h));
+}
+.map-player-handoff {
+  width: 100%;
+}
+@media (min-width: 1000px) {
+  .map-player-shell {
+    left: auto;
+    width: min(760px, 100%);
+    border-left: 1px solid var(--ink);
   }
-  .nm-panel-head {
-    display: none;
+  .night-explorer.is-listening .ne-stage {
+    padding-bottom: var(--map-player-h, 190px);
   }
-  .nm-legend-map:has(.nm-demo) {
-    display: flex;
-  }
-  .nm-strip {
-    padding: 0 10px 2px;
-    gap: 8px;
-  }
-  .nm-card {
-    grid-template-columns: 48px minmax(0, 1fr) 44px;
-    align-items: center;
-    padding: 7px;
-    column-gap: 8px;
-    row-gap: 4px;
-  }
-  .nm-card-body {
-    gap: 1px;
-    overflow: hidden;
-  }
-  .nm-card-title {
-    font-size: 20px;
-  }
-  .nm-card-lineup {
-    font-size: 12px;
-  }
-  .nm-card-art {
-    width: 48px;
-    align-self: center;
-  }
-  .nm-card-genres,
-  .nm-card-taste {
-    display: none;
-  }
-  .nm-card-actions {
-    grid-column: 3;
-    grid-row: 1;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .nm-card-listen,
-  .nm-card-tickets {
-    width: 44px;
-    height: 44px;
-    min-height: 44px;
-    justify-content: center;
-    padding: 0;
-  }
-  .nm-card-listen span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .nm-card-tickets {
-    font-size: 0;
-    gap: 0;
-  }
-  .nm-card-tickets .ui-icon {
-    width: 19px;
-    height: 19px;
-  }
-  .nm-unmapped {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
-    margin: 3px 10px 0;
-  }
-  .nm-panel:has(.nm-unmapped) {
-    padding-block: 0;
-  }
+}
+
+/* A compact lineup browser takes only its own height, with no player spacer. */
+.nm-dj-browser {
+  flex: 0 0 104px;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+  grid-template-rows: 44px 44px;
+  gap: 2px 4px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--ink);
+  background: var(--surface);
+}
+.nm-dj-browser-name {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.nm-dj-browser-name span {
+  color: var(--muted);
+  font: 600 11px/1.2 var(--font-mono);
+}
+.nm-dj-browser-name a {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 800 22px/1.1 var(--font-display);
+  text-transform: uppercase;
+}
+.nm-dj-next .ui-icon {
+  transform: rotate(180deg);
+}
+.nm-dj-browser-links {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.nm-dj-browser-links .chip-button {
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.nm-dj-browser-links > span {
+  color: var(--muted);
+  font-size: 12px;
 }

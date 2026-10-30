@@ -449,8 +449,21 @@ points are approximate city rings. Tiles come from one itstiles.com server
 list the nights. SoundCloud's widget is light in both themes. Map interaction
 is not keyboard-complete (the cards and the list are the accessible path).
 
-The night-card panel reserves a fixed 132px on phones/tablets and 280px on
-desktop in every selection and empty state. Mobile shows only the swipeable
-cards, without the panel heading or area listening button; per-event listening
+The night-card panel reserves a fixed 132px at every screen size in every
+selection and empty state. It shows only the swipeable cards, without the
+panel heading or area listening button; per-event listening
 and ticket actions stay at least 44px and sit beside the card facts. Ticket/listening buttons and taste rows cannot resize the map canvas:
 otherwise a viewport-edge venue can repeatedly enter/leave the visible bounds.
+
+SoundCloud embeds and the widget API are publicly disabled pending permission.
+Existing consent cannot enable them. A local-only opt-in
+`NEXT_PUBLIC_EVRYVIBE_SC_PREVIEW=1` exposes the proposed implementation for
+permission screenshots; production always ignores this flag. Genre pages
+permanently have only SoundCloud outlinks, including in that preview.
+The map action opens a 104px lineup browser for all known DJs of the night,
+including artists without SoundCloud: previous/next, artist profile,
+SoundCloud and Instagram outlinks when known. It starts no media and reserves
+no player spacer. Clicking through DJs keeps the map's height unchanged.
+The local proposed map player lives in the root layout and keeps its iframe
+through internal navigation and history back/forward; it remains disabled
+publicly. Reels requires an explicit start even with saved settings.

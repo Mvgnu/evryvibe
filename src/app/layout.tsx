@@ -1,3 +1,4 @@
+import { MapListeningProvider } from "@/components/map-listening";
 import { MinilyticsAnalytics } from "@/components/minilytics-analytics";
 import { requestLocale } from "@/lib/locale";
 import type { Metadata } from "next";
@@ -18,6 +19,7 @@ import "./poster.css";
 import "./listing.css";
 import "./detail.css";
 import "./cities.css";
+import "./night-map.css";
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await requestLocale();
   return {
@@ -55,9 +57,11 @@ export default async function RootLayout({
           initialConsent={instagram}
           initialSoundcloud={soundcloud}
         >
-          <Header locale={locale} />
-          {children}
-          <Footer locale={locale} />
+          <MapListeningProvider>
+            <Header locale={locale} />
+            {children}
+            <Footer locale={locale} />
+          </MapListeningProvider>
           {process.env.MINILYTICS_COLLECTOR_URL &&
             process.env.MINILYTICS_SITE_ID &&
             process.env.MINILYTICS_SITE_SECRET &&

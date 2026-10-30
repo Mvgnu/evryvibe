@@ -335,6 +335,7 @@ export default async function GenrePage({ params, searchParams }: Props) {
                   others={view.djs.length - listenable}
                   locale={locale}
                   level={3}
+                  embeddable={false}
                 />
                 {nextRow &&
                   (nextLimit > shown.length ? (

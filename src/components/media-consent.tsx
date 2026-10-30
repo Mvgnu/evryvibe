@@ -1,5 +1,6 @@
 "use client";
 
+import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import type { Locale } from "@/core/i18n";
 import {
   createContext,
@@ -25,7 +26,9 @@ export type { ConsentState, MediaProvider } from "@/components/consent-state";
 // One consent per external media provider, one dialog and one settings entry
 // for both. While either choice is unset, the shared dialog asks again.
 type Choice = Exclude<ConsentState, "unset">;
-const providers = ["instagram", "soundcloud"] as const;
+const providers = SOUNDCLOUD_EMBEDS_ENABLED
+  ? (["instagram", "soundcloud"] as const)
+  : (["instagram"] as const);
 const changeEvent = "evryvibe-media-consent-change";
 const sixMonths = 60 * 60 * 24 * 180;
 const memoryOverride: Record<MediaProvider, Choice | null> = {
@@ -103,8 +106,12 @@ const MediaConsentContext = createContext<ConsentContext | null>(null);
 const text = {
   de: {
     eyebrow: "EVRYVIBE / Externe Medien",
-    title: "Instagram und SoundCloud laden?",
-    body: "EVRYVIBE kann Instagram-Beiträge, Profilvorschauen und Titelbilder sowie DJ-Player von SoundCloud einbetten. Sie laden erst nach deiner Zustimmung direkt vom jeweiligen Anbieter. Dabei erhalten Meta bzw. SoundCloud deine IP-Adresse und weitere Verbindungsdaten und können Cookies verwenden. Du kannst deine Wahl jederzeit über „Einstellungen“ im Kopfbereich ändern.",
+    title: SOUNDCLOUD_EMBEDS_ENABLED
+      ? "Instagram und SoundCloud laden?"
+      : "Instagram laden?",
+    body: SOUNDCLOUD_EMBEDS_ENABLED
+      ? "EVRYVIBE kann Instagram-Beiträge, Profilvorschauen und Titelbilder sowie DJ-Player von SoundCloud einbetten. Sie laden erst nach deiner Zustimmung direkt vom jeweiligen Anbieter. Dabei erhalten Meta bzw. SoundCloud deine IP-Adresse und weitere Verbindungsdaten und können Cookies verwenden. Du kannst deine Wahl jederzeit über „Einstellungen“ im Kopfbereich ändern."
+      : "Instagram-Inhalte laden erst nach deiner Zustimmung direkt von Meta. Dabei erhält Meta deine Verbindungsdaten und kann Cookies setzen. SoundCloud-Embeds sind derzeit deaktiviert.",
     news: "Neu: DJ-Player von SoundCloud. Bitte bestätige deine Auswahl.",
     choices: "Einzeln wählen",
     instagram: "Beiträge, Profilvorschauen und Titelbilder (Meta)",
@@ -120,8 +127,12 @@ const text = {
   },
   en: {
     eyebrow: "EVRYVIBE / External media",
-    title: "Load Instagram and SoundCloud?",
-    body: "EVRYVIBE can embed Instagram posts, profile previews and cover images as well as DJ players from SoundCloud. They load directly from each provider only after you agree. Meta or SoundCloud then receive your IP address and other connection data and may use cookies. You can change your choice at any time in “Settings” in the header.",
+    title: SOUNDCLOUD_EMBEDS_ENABLED
+      ? "Load Instagram and SoundCloud?"
+      : "Load Instagram?",
+    body: SOUNDCLOUD_EMBEDS_ENABLED
+      ? "EVRYVIBE can embed Instagram posts, profile previews and cover images as well as DJ players from SoundCloud. They load directly from each provider only after you agree. Meta or SoundCloud then receive your IP address and other connection data and may use cookies. You can change your choice at any time in “Settings” in the header."
+      : "Instagram content loads directly from Meta only after you agree. Meta receives your connection details and may use cookies. SoundCloud embeds are currently disabled.",
     news: "New: DJ players from SoundCloud. Please confirm your choice.",
     choices: "Choose individually",
     instagram: "Posts, profile previews and cover images (Meta)",
@@ -154,11 +165,12 @@ export function MediaConsentProvider({
     () => savedConsent("instagram"),
     () => initialConsent,
   );
-  const soundcloud = useSyncExternalStore<ConsentState>(
+  const soundcloudChoice = useSyncExternalStore<ConsentState>(
     subscribe,
     () => savedConsent("soundcloud"),
     () => initialSoundcloud,
   );
+  const soundcloud = SOUNDCLOUD_EMBEDS_ENABLED ? soundcloudChoice : "rejected";
   const [isOpen, setIsOpen] = useState(false);
   const rejectRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);

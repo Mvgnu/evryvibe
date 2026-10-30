@@ -19,6 +19,7 @@ export function saveReelState(
       REEL_STORAGE_KEY,
       JSON.stringify({ version: 1, settings, votes }),
     );
+    window.dispatchEvent(new Event("evryvibe-reels-change"));
   } catch {
     // Storage full or blocked: the feed keeps working for this visit.
   }

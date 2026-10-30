@@ -395,7 +395,9 @@ button {
     font-size: 22px;
   }
   /* One tab: the current section, otherwise Reels. */
-  .site-nav:not(:has(a[data-section="cities"][aria-current]))
+  .site-nav:has(a[data-section="reels"]):not(
+      :has(a[data-section="cities"][aria-current])
+    )
     a[data-section="cities"],
   .site-nav:has(
       a[data-section="djs"][aria-current],

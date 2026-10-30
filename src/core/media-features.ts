@@ -3,3 +3,6 @@
 export const SOUNDCLOUD_EMBEDS_ENABLED =
   process.env.NODE_ENV !== "production" &&
   process.env.NEXT_PUBLIC_EVRYVIBE_SC_PREVIEW === "1";
+
+// Keep the implementation for review; the public route and entry points stay off.
+export const REELS_PAGE_ENABLED = false;

@@ -140,3 +140,9 @@ scope.
   device. Headless Chromium autoplays after the start tap and on swipes.
 - The widget is light-themed in both site themes.
 - Demo catalogue SoundCloud profiles are fictional and do not play.
+
+## Public availability
+
+Reels is currently disabled by `REELS_PAGE_ENABLED` in core/media-features.
+The route returns404 and all public entry links/sitemap entries are suppressed.
+The implementation remains in place for future review; this is not a deletion.

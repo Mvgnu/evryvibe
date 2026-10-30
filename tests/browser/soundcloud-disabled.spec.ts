@@ -86,3 +86,16 @@ test("map buttons browse the whole lineup without starting a player or leaving b
   await browser.getByRole("button", { name: "DJ-Auswahl schließen" }).click();
   expect(await height()).toBe(originalHeight);
 });
+
+test("Reels route is disabled while its implementation is retained", async ({
+  page,
+}) => {
+  for (const path of ["/reels", "/en/reels"]) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(404);
+  }
+  await page.goto("/");
+  await expect(
+    page.locator('a[href="/reels"], a[href="/en/reels"]'),
+  ).toHaveCount(0);
+});

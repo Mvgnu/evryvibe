@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { REELS_PAGE_ENABLED } from "@/core/media-features";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Preferences } from "@/components/preferences";
@@ -66,16 +67,18 @@ export function Header({ locale = "de" }: { locale?: Locale }) {
         className="site-nav"
         aria-label={copy(locale, "Hauptnavigation", "Main navigation")}
       >
-        {links.map((link) => (
-          <Link
-            key={link.key}
-            href={link.href}
-            data-section={link.key}
-            aria-current={section === link.key ? "page" : undefined}
-          >
-            {link.label}
-          </Link>
-        ))}
+        {links
+          .filter((link) => REELS_PAGE_ENABLED || link.key !== "reels")
+          .map((link) => (
+            <Link
+              key={link.key}
+              href={link.href}
+              data-section={link.key}
+              aria-current={section === link.key ? "page" : undefined}
+            >
+              {link.label}
+            </Link>
+          ))}
       </nav>
       <Preferences locale={locale} />
     </header>
@@ -103,7 +106,9 @@ export function Footer({ locale = "de" }: { locale?: Locale }) {
           "DJs, cities, contact and legal information",
         )}
       >
-        <Link href={localizePath("/reels", locale)}>Reels</Link>
+        {REELS_PAGE_ENABLED && (
+          <Link href={localizePath("/reels", locale)}>Reels</Link>
+        )}
         <Link href={localizePath("/djs", locale)}>DJs</Link>
         <Link href={localizePath("/genres", locale)}>Genres</Link>
         <Link href={localizePath("/cities", locale)}>

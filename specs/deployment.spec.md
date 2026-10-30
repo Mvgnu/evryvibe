@@ -134,3 +134,20 @@ MCP tools round-trip over SSH; collector and manual locking behave correctly;
 a backup restores into a disposable database. TLS and renewal must pass through public DNS; the 21 September 2026 activation
 verified Cloudflare HTTPS and a successful renewal dry-run. Templates are not evidence of
 installed services; the deployment report records actual host checks.
+
+# Behavioral bot guard
+
+`ops/guard/` is an EVRYVIBE-isolated adaptation of the installed Leasy guard.
+Its detector, independent button issuer and watchdog are root-owned systemd
+units; only the issuer listens on loopback3319. Nginx namespaces use `evg_`,
+`/_evg/pass`, a new private secret, private state and a 14-day security log.
+The existing TLS vhost and its protected template include the guard; verify
+the actual sites-enabled path since this host has a separate regular file.
+Synthetically suspicious requests get403/no-store/noindex and “Bitte bestätigen”;
+a same-site POST issues Secure/HttpOnly signed30-day pass cookies and redirects
+to the original public URL. Known crawler/assistant and genuine navigation
+exceptions follow Leasy. OAuth/MCP and auth retain their dedicated routes.
+Initial state is empty, not a copy of another site's learned traffic. The
+watchdog fails open if the issuer stops, and disables learned families if the
+detector is stale. `guard.off` is an immediate rollback without reload.
+See `ops/guard/README.txt` for installation, verification and rollback.

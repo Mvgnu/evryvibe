@@ -1,3 +1,4 @@
+import { REELS_PAGE_ENABLED } from "@/core/media-features";
 import type { MetadataRoute } from "next";
 import { absoluteUrl, isPublicSite, languageAlternates } from "@/core/site";
 import { getCatalog } from "@/db/catalog";
@@ -47,7 +48,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? ["/genres", ...genres.map(({ genre }) => genrePath(genre))]
       : []),
     // Reels has something to play only with a booked SoundCloud DJ.
-    ...(buildReels(catalog, now).length ? ["/reels"] : []),
+    ...(REELS_PAGE_ENABLED && buildReels(catalog, now).length
+      ? ["/reels"]
+      : []),
     "/impressum",
     "/datenschutz",
     "/kontakt",

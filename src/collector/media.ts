@@ -63,7 +63,7 @@ export async function recognizeImage(path: string): Promise<string> {
     const { stdout } = await execute(
       process.env.TESSERACT_BIN ?? "tesseract",
       [path, "stdout", "-l", language, "--psm", "11"],
-      { timeout: 30000, maxBuffer: 256000 },
+      { timeout: 90000, maxBuffer: 256000 },
     );
     return stdout.trim();
   } catch (error) {

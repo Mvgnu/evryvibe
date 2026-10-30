@@ -455,6 +455,15 @@ panel heading or area listening button; per-event listening
 and ticket actions stay at least 44px and sit beside the card facts. Ticket/listening buttons and taste rows cannot resize the map canvas:
 otherwise a viewport-edge venue can repeatedly enter/leave the visible bounds.
 
-SoundCloud embeds and widget API are disabled publicly. Existing provider consent
-cannot enable them. Profile/event links open SoundCloud externally; genre
-discovery permanently uses only outbound links, including in local previews.
+SoundCloud embeds and the widget API are publicly disabled pending permission.
+Existing consent cannot enable them. A local-only opt-in
+`NEXT_PUBLIC_EVRYVIBE_SC_PREVIEW=1` exposes the proposed implementation for
+permission screenshots; production always ignores this flag. Genre pages
+permanently have only SoundCloud outlinks, including in that preview.
+The map action opens a 104px lineup browser for all known DJs of the night,
+including artists without SoundCloud: previous/next, artist profile,
+SoundCloud and Instagram outlinks when known. It starts no media and reserves
+no player spacer. Clicking through DJs keeps the map's height unchanged.
+The local proposed map player lives in the root layout and keeps its iframe
+through internal navigation and history back/forward; it remains disabled
+publicly. Reels requires an explicit start even with saved settings.

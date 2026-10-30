@@ -1086,3 +1086,52 @@
   padding-block: 0;
 }
 
+
+/* A compact lineup browser takes only its own height, with no player spacer. */
+.nm-dj-browser {
+  flex: 0 0 104px;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+  grid-template-rows: 44px 44px;
+  gap: 2px 4px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--ink);
+  background: var(--surface);
+}
+.nm-dj-browser-name {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.nm-dj-browser-name span {
+  color: var(--muted);
+  font: 600 11px/1.2 var(--font-mono);
+}
+.nm-dj-browser-name a {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 800 22px/1.1 var(--font-display);
+  text-transform: uppercase;
+}
+.nm-dj-next .ui-icon {
+  transform: rotate(180deg);
+}
+.nm-dj-browser-links {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.nm-dj-browser-links .chip-button {
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.nm-dj-browser-links > span {
+  color: var(--muted);
+  font-size: 12px;
+}

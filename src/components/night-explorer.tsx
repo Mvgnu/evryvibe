@@ -8,6 +8,7 @@
 // the DJs of those nights, ordered by the visitor's Reels taste.
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { MapDjBrowser } from "@/components/map-dj-browser";
 import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import {
   useCallback,
@@ -111,6 +112,7 @@ export function NightExplorer({
   const [locating, setLocating] = useState(false);
   const [command, setCommand] = useState<MapCommand | null>(null);
   const [listening, setListening] = useState<Listening | null>(null);
+  const [browsing, setBrowsing] = useState<MapNight | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   // Stays in the panel until the next search: nothing near, and the closest.
   const [nearNote, setNearNote] = useState<{
@@ -301,12 +303,14 @@ export function NightExplorer({
   );
 
   const listenArea = () => {
+    if (!SOUNDCLOUD_EMBEDS_ENABLED) return;
     const items = queueFor(panelNights);
     if (items.length) setListening({ items, index: 0 });
   };
   // A night's own "Anhören" plays its lineup in billing order, then carries
   // on with the other DJs on the map.
   const listenNight = (night: MapNight) => {
+    if (!SOUNDCLOUD_EMBEDS_ENABLED) { setBrowsing(night); return; }
     const items = queueFor(
       viewNights,
       night.listen.map((dj) => ({ dj, night })),
@@ -913,6 +917,8 @@ export function NightExplorer({
             </p>
           )}
         </section>
+        {browsing && <MapDjBrowser key={browsing.id} night={browsing} locale={locale} onClose={() => setBrowsing(null)} />}
+
 
         {listening && current && (
           <ListenDock
@@ -1045,21 +1051,11 @@ function NightCard({
           </p>
         )}
       </div>
-      {(night.listen.length > 0 || night.ticketUrl) && (
+      {(night.artists.length > 0 || night.ticketUrl) && (
         <div className="nm-card-actions">
-          {night.listen.length > 0 && (
-            <button
-              type="button"
-              className="nm-card-listen"
-              onClick={onListen}
-              aria-label={t(
-                locale,
-                `${night.title} anhören: ${night.listen.map((dj) => dj.name).join(", ")}`,
-                `Listen to ${night.title}: ${night.listen.map((dj) => dj.name).join(", ")}`,
-              )}
-            >
-              <Icon name="play" />
-              <span aria-hidden="true">{t(locale, "Anhören", "Listen")}</span>
+          {(SOUNDCLOUD_EMBEDS_ENABLED ? night.listen.length > 0 : night.artists.length > 0) && (
+            <button type="button" className="nm-card-listen" onClick={onListen} aria-label={SOUNDCLOUD_EMBEDS_ENABLED ? t(locale, `${night.title} anhören: ${night.listen.map(dj=>dj.name).join(", ")}`, `Listen to ${night.title}: ${night.listen.map(dj=>dj.name).join(", ")}`) : t(locale, `Line-up von ${night.title} ansehen`, `View ${night.title} lineup`)}>
+              <Icon name={SOUNDCLOUD_EMBEDS_ENABLED ? "play" : "wave"} /><span>{SOUNDCLOUD_EMBEDS_ENABLED ? t(locale,"Anhören","Listen") : "DJs"}</span>
             </button>
           )}
           {night.ticketUrl ? (

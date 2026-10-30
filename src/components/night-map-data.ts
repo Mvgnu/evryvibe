@@ -10,7 +10,7 @@ import {
   type PosterFacts,
 } from "@/components/poster-facts";
 import type { Locale } from "@/core/i18n";
-import type { Catalog, Event } from "@/core/model";
+import type { Catalog, Dj, Event } from "@/core/model";
 import {
   listenableLineup,
   mapPlaces,
@@ -42,6 +42,7 @@ export type MapNight = {
   djIds: string[];
   ticketUrl: string | null;
   listen: ListenDj[];
+  artists: Pick<Dj, "id" | "slug" | "name" | "soundcloudUrl" | "instagramUrl">[];
   artwork: { event: Event; poster: PosterFacts };
 };
 
@@ -101,6 +102,7 @@ export function nightMapData(
       djIds: event.djIds,
       ticketUrl: event.ticketUrl,
       listen: listenableLineup(event, djs),
+      artists: [...new Set(event.djIds)].flatMap(id => { const dj=djs.get(id); return dj ? [{id:dj.id,slug:dj.slug,name:dj.name,soundcloudUrl:dj.soundcloudUrl,instagramUrl:dj.instagramUrl}] : []; }),
       artwork: {
         // The card needs the cover facts, not the long description.
         event: { ...event, description: "", translations: undefined },

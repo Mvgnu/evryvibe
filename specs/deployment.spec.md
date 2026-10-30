@@ -151,3 +151,9 @@ Initial state is empty, not a copy of another site's learned traffic. The
 watchdog fails open if the issuer stops, and disables learned families if the
 detector is stale. `guard.off` is an immediate rollback without reload.
 See `ops/guard/README.txt` for installation, verification and rollback.
+
+The administrator-owned `dj_takedown_hashes` suppression ledger is read by the
+`prevent_removed_dj` invoker trigger. The app role needs SELECT on this table,
+but no write grant. Apply `ops/sql/takedown-read-permission.sql` after creating
+that ledger; `ops/sql/check-takedown-permissions.sql` verifies normal DJ writes
+and rejected recreation within a rolled-back transaction.

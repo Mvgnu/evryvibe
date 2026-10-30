@@ -93,7 +93,7 @@ test("listening on the map asks for SoundCloud first and loads nothing before", 
   });
   await page.goto("/");
   const stage = page.getByRole("region", { name: "Karte der Nächte" });
-  await stage.getByRole("button", { name: /^Anhören · \d+ DJs$/ }).click();
+  await stage.locator(".nm-card-listen").first().click();
   const dock = page.getByRole("region", { name: "SoundCloud-Player" });
   await expect(
     dock.getByRole("button", { name: "SoundCloud laden und abspielen" }),

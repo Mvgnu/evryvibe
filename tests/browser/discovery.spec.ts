@@ -154,18 +154,32 @@ test("events are in the first viewport and the page never scrolls sideways", asy
   page,
 }, testInfo) => {
   await page.goto("/");
-  await expect(rows(page).first()).toBeVisible();
+  await expect(rows(page).first()).toBeAttached();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
   await page.evaluate(() => document.fonts.ready);
-  const firstPlace = await page.locator(".ev-row-place").first().boundingBox();
-  expect(firstPlace).not.toBeNull();
-  expect((firstPlace?.y ?? Infinity) + (firstPlace?.height ?? 0)).toBeLessThan(
-    page.viewportSize()?.height ?? 0,
+  const viewport = page.viewportSize()?.height ?? 0;
+  // The night map leads the page: its first card names date, night and place
+  // on the first screen, before the map itself has loaded.
+  const firstCard = await page.locator(".nm-card-place").first().boundingBox();
+  expect(firstCard).not.toBeNull();
+  expect((firstCard?.y ?? Infinity) + (firstCard?.height ?? 0)).toBeLessThan(
+    viewport,
   );
+  // Wide screens show the programme beside the map.
+  if (testInfo.project.name === "desktop") {
+    const firstPlace = await page
+      .locator(".ev-row-place")
+      .first()
+      .boundingBox();
+    expect(firstPlace).not.toBeNull();
+    expect(
+      (firstPlace?.y ?? Infinity) + (firstPlace?.height ?? 0),
+    ).toBeLessThan(viewport);
+  }
   // Chip rows scroll sideways instead of wrapping into walls.
   for (const row of await page.locator(".filter-panel .chip-scroll").all()) {
     const heights = await row

@@ -1453,12 +1453,3 @@ button {
 .ui-icon.filled path {
   fill: currentColor;
 }
-
-.home-map-link {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  margin-left: 16px;
-  color: var(--ink);
-  font: 700 12px var(--font-mono);
-}

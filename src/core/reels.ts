@@ -475,6 +475,57 @@ export function rankReels(
   };
 }
 
+// ─── The same taste on the night map ───
+
+/**
+ * How a night fits the visitor's votes: "liked" when a liked DJ plays,
+ * "close" when its genres lean clearly towards liked ones.
+ */
+export function tasteMatch(
+  night: { djIds: readonly string[]; genres: readonly string[] },
+  taste: Taste,
+): "liked" | "close" | null {
+  if (night.djIds.some((id) => (taste.djs.get(id) ?? 0) > 0)) return "liked";
+  return genreAffinity(night.genres, taste) > 0.5 ? "close" : null;
+}
+
+export type ListenCandidate = {
+  dj: Reel["dj"];
+  genres: string[];
+  /** Start of the DJ's soonest night among the ones on screen. */
+  startsAt: string;
+};
+
+/**
+ * Listening order for the DJs of the nights on the map: the Reels taste
+ * first, then how soon they play. Disliked DJs are left out; one entry per
+ * DJ is expected.
+ */
+export function rankListening<T extends ListenCandidate>(
+  candidates: readonly T[],
+  votes: readonly ReelVote[],
+  now: number,
+): T[] {
+  const taste = tasteOf(votes);
+  const soon = (startsAt: string) => {
+    const days = (Date.parse(startsAt) - now) / DAY_MS;
+    return days <= 7 ? 0.6 : days <= 14 ? 0.3 : 0;
+  };
+  return candidates
+    .filter((candidate) => (taste.djs.get(candidate.dj.id) ?? 0) >= 0)
+    .map((candidate) => ({
+      candidate,
+      score: reelScore(candidate, taste) + soon(candidate.startsAt),
+    }))
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        Date.parse(a.candidate.startsAt) - Date.parse(b.candidate.startsAt) ||
+        a.candidate.dj.name.localeCompare(b.candidate.dj.name, "de"),
+    )
+    .map(({ candidate }) => candidate);
+}
+
 /** The nights of every DJ the visitor likes, soonest first. */
 export function likedNights(
   reels: readonly RankedReel[],

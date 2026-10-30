@@ -106,7 +106,6 @@ export function Footer({ locale = "de" }: { locale?: Locale }) {
         <Link href={localizePath("/reels", locale)}>Reels</Link>
         <Link href={localizePath("/djs", locale)}>DJs</Link>
         <Link href={localizePath("/genres", locale)}>Genres</Link>
-        <Link href={localizePath("/keys", locale)}>Keys</Link>
         <Link href={localizePath("/cities", locale)}>
           {copy(locale, "Städte", "Cities")}
         </Link>

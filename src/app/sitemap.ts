@@ -48,7 +48,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       : []),
     // Reels has something to play only with a booked SoundCloud DJ.
     ...(buildReels(catalog, now).length ? ["/reels"] : []),
-    "/keys",
     "/impressum",
     "/datenschutz",
     "/kontakt",

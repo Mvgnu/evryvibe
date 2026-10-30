@@ -28,6 +28,9 @@ import {
   type HomeFilters,
 } from "@/components/discovery-filters";
 import { requestTime } from "@/components/request-time";
+import { NightExplorer } from "@/components/night-explorer";
+import { nightMapData } from "@/components/night-map-data";
+import "./night-map.css";
 
 const homeDescription = (locale: Locale) =>
   copy(
@@ -181,167 +184,232 @@ export default async function Discovery({
         }}
       />
       <DemoNotice mode={catalog.mode} locale={locale} />
-      <section className="discovery-head" aria-labelledby="home-title">
-        <div className="home-heading">
-          <h1 id="home-title">
-            {copy(locale, "Techno-Partys", "Techno parties")}
-          </h1>
-          <p className="home-count">
-            {filtered
-              ? copy(
-                  locale,
-                  `${view.shown} von ${view.total} ${nightsWord(view.total, locale)}`,
-                  `${view.shown} of ${view.total} ${nightsWord(view.total, locale)}`,
-                )
-              : copy(
-                  locale,
-                  `${view.total} ${view.total === 1 ? "kommende Nacht" : "kommende Nächte"}`,
-                  `${view.total} upcoming ${nightsWord(view.total, locale)}`,
-                )}
-          </p>
-          <Link
-            className="home-reels-link"
-            href={localizePath("/reels", locale)}
+      <NightExplorer
+        locale={locale}
+        data={nightMapData(view.results, catalog, locale)}
+        now={requestNow}
+        demo={catalog.mode === "demo"}
+        cityFilter={filters.city}
+        head={
+          <section className="discovery-head" aria-labelledby="home-title">
+            <div className="home-heading">
+              <h1 id="home-title">
+                {copy(locale, "Techno-Partys", "Techno parties")}
+              </h1>
+              <p className="home-count">
+                {filtered
+                  ? copy(
+                      locale,
+                      `${view.shown} von ${view.total} ${nightsWord(view.total, locale)}`,
+                      `${view.shown} of ${view.total} ${nightsWord(view.total, locale)}`,
+                    )
+                  : copy(
+                      locale,
+                      `${view.total} ${view.total === 1 ? "kommende Nacht" : "kommende Nächte"}`,
+                      `${view.total} upcoming ${nightsWord(view.total, locale)}`,
+                    )}
+              </p>
+              <Link
+                className="home-reels-link"
+                href={localizePath("/reels", locale)}
+              >
+                <Icon name="play" />
+                <span className="home-reels-long">
+                  {copy(
+                    locale,
+                    "Reels: DJs aus deiner Nähe hören",
+                    "Reels: hear DJs near you",
+                  )}
+                </span>
+                <span className="home-reels-short" aria-hidden="true">
+                  Reels
+                </span>
+              </Link>
+            </div>
+          </section>
+        }
+        search={
+          <div className="discovery-search">
+            <form
+              key={filters.q}
+              className="search-form"
+              action={localizePath("/", locale)}
+              method="get"
+              role="search"
+              aria-label={copy(locale, "Nächte durchsuchen", "Search nights")}
+            >
+              <Keep filters={filters} omit={["q"]} />
+              <label className="search-input">
+                <Icon name="search" />
+                <span className="visually-hidden">
+                  {copy(locale, "Suche", "Search")}
+                </span>
+                <input
+                  type="search"
+                  name="q"
+                  defaultValue={filters.q}
+                  placeholder={copy(
+                    locale,
+                    "Event, Club oder DJ",
+                    "Event, venue or DJ",
+                  )}
+                  enterKeyHint="search"
+                />
+              </label>
+              <button className="search-submit" type="submit">
+                {copy(locale, "Suchen", "Search")}
+              </button>
+            </form>
+          </div>
+        }
+        filters={
+          <section
+            className="filter-panel"
+            aria-label={copy(locale, "Filter", "Filters")}
           >
-            <Icon name="play" />
-            {copy(
-              locale,
-              "Reels: DJs aus deiner Nähe hören",
-              "Reels: hear DJs near you",
-            )}
-          </Link>
-          <Link className="home-map-link" href={localizePath("/map", locale)}>
-            {copy(locale, "Karte entdecken ↗", "Explore the map ↗")}
-          </Link>
-        </div>
-        <form
-          key={filters.q}
-          className="search-form"
-          action={localizePath("/", locale)}
-          method="get"
-          role="search"
-          aria-label={copy(locale, "Nächte durchsuchen", "Search nights")}
-        >
-          <Keep filters={filters} omit={["q"]} />
-          <label className="search-input">
-            <Icon name="search" />
-            <span className="visually-hidden">
-              {copy(locale, "Suche", "Search")}
-            </span>
-            <input
-              type="search"
-              name="q"
-              defaultValue={filters.q}
-              placeholder={copy(
-                locale,
-                "Event, Club oder DJ",
-                "Event, venue or DJ",
-              )}
-              enterKeyHint="search"
-            />
-          </label>
-          <button className="search-submit" type="submit">
-            {copy(locale, "Suchen", "Search")}
-          </button>
-        </form>
-      </section>
-
-      <section
-        className="filter-panel"
-        aria-label={copy(locale, "Filter", "Filters")}
-      >
-        <ScrollActiveChips state={homeHref(locale, filters)} />
-        <ChipRow
-          id="filter-when"
-          label={copy(locale, "Wann", "When")}
-          before={
-            <Popover
-              key={filters.date || "any"}
-              className="date-pick"
-              summaryClassName={`chip date-chip${filters.date ? " is-active" : ""}`}
-              summary={
-                <>
-                  <Icon name="calendar" />
-                  <span className="date-chip-text">
-                    {filters.date ? dateText : copy(locale, "Datum", "Date")}
-                  </span>
-                  <Icon name="chevron-down" className="chip-caret" />
-                </>
+            <ScrollActiveChips state={homeHref(locale, filters)} />
+            <ChipRow
+              id="filter-when"
+              label={copy(locale, "Wann", "When")}
+              before={
+                <Popover
+                  key={filters.date || "any"}
+                  className="date-pick"
+                  summaryClassName={`chip date-chip${filters.date ? " is-active" : ""}`}
+                  summary={
+                    <>
+                      <Icon name="calendar" />
+                      <span className="date-chip-text">
+                        {filters.date
+                          ? dateText
+                          : copy(locale, "Datum", "Date")}
+                      </span>
+                      <Icon name="chevron-down" className="chip-caret" />
+                    </>
+                  }
+                >
+                  <div className="date-pop">
+                    {view.days.length > 0 && (
+                      <ul className="date-days">
+                        {view.days.map((day) => (
+                          <li key={day.value}>
+                            <Link
+                              href={href({ date: day.value, when: null })}
+                              scroll={false}
+                              aria-current={
+                                day.value === filters.date ? "true" : undefined
+                              }
+                            >
+                              {day.label} <span>{day.count}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <form
+                      className="date-form"
+                      action={localizePath("/", locale)}
+                      method="get"
+                    >
+                      <Keep filters={filters} omit={["date", "when"]} />
+                      <label>
+                        <span>
+                          {copy(locale, "Anderes Datum", "Other date")}
+                        </span>
+                        <input
+                          type="date"
+                          name="date"
+                          required
+                          min={today || undefined}
+                          defaultValue={filters.date}
+                        />
+                      </label>
+                      <button className="chip-button" type="submit">
+                        {copy(locale, "Anzeigen", "Show")}
+                      </button>
+                    </form>
+                  </div>
+                </Popover>
               }
             >
-              <div className="date-pop">
-                {view.days.length > 0 && (
-                  <ul className="date-days">
-                    {view.days.map((day) => (
-                      <li key={day.value}>
-                        <Link
-                          href={href({ date: day.value, when: null })}
-                          scroll={false}
-                          aria-current={
-                            day.value === filters.date ? "true" : undefined
-                          }
-                        >
-                          {day.label} <span>{day.count}</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <form
-                  className="date-form"
-                  action={localizePath("/", locale)}
-                  method="get"
-                >
-                  <Keep filters={filters} omit={["date", "when"]} />
-                  <label>
-                    <span>{copy(locale, "Anderes Datum", "Other date")}</span>
-                    <input
-                      type="date"
-                      name="date"
-                      required
-                      min={today || undefined}
-                      defaultValue={filters.date}
+              {view.when.map((facet) => {
+                const on = !filters.date && filters.when === facet.value;
+                return facet.count > 0 || on ? (
+                  <Chip
+                    key={facet.value}
+                    label={facet.label}
+                    count={facet.count}
+                    active={on}
+                    href={href({ when: on ? null : facet.value, date: "" })}
+                  />
+                ) : null;
+              })}
+            </ChipRow>
+            {view.cities.length > 0 && (
+              <ChipRow id="filter-city" label={copy(locale, "Wo", "Where")}>
+                {view.cities.map((facet) => {
+                  const on = facet.value === filters.city;
+                  return (
+                    <Chip
+                      key={facet.value}
+                      label={facet.label}
+                      count={facet.count}
+                      active={on}
+                      href={href({ city: on ? "" : facet.value })}
                     />
-                  </label>
-                  <button className="chip-button" type="submit">
-                    {copy(locale, "Anzeigen", "Show")}
-                  </button>
-                </form>
-              </div>
-            </Popover>
-          }
-        >
-          {view.when.map((facet) => {
-            const on = !filters.date && filters.when === facet.value;
-            return facet.count > 0 || on ? (
-              <Chip
-                key={facet.value}
-                label={facet.label}
-                count={facet.count}
-                active={on}
-                href={href({ when: on ? null : facet.value, date: "" })}
-              />
-            ) : null;
-          })}
-        </ChipRow>
-        {view.cities.length > 0 && (
-          <ChipRow id="filter-city" label={copy(locale, "Wo", "Where")}>
-            {view.cities.map((facet) => {
-              const on = facet.value === filters.city;
-              return (
+                  );
+                })}
+              </ChipRow>
+            )}
+            {view.sounds.length > 0 && (
+              <ChipRow id="filter-sound" label="Sound">
+                {view.sounds.map((facet) => {
+                  const on = facet.value === filters.sound;
+                  return (
+                    <Chip
+                      key={facet.value}
+                      label={facet.label}
+                      count={facet.count}
+                      active={on}
+                      swatch={genreFamilyBySlug(facet.value)?.motif}
+                      href={href({ sound: on ? null : facet.value, genre: "" })}
+                    />
+                  );
+                })}
+              </ChipRow>
+            )}
+            {view.genres.length > 1 && (
+              <ChipRow id="filter-genre" label="Genre">
+                {view.genres.map((facet) => {
+                  const on = facet.value === filters.genre;
+                  return (
+                    <Chip
+                      key={facet.value}
+                      label={facet.label}
+                      count={facet.count}
+                      active={on}
+                      href={href({ genre: on ? "" : facet.value })}
+                    />
+                  );
+                })}
+              </ChipRow>
+            )}
+          </section>
+        }
+        stageFilters={
+          <ChipRow id="map-filter" label={copy(locale, "Filter", "Filters")}>
+            {view.when.map((facet) => {
+              const on = !filters.date && filters.when === facet.value;
+              return facet.count > 0 || on ? (
                 <Chip
                   key={facet.value}
                   label={facet.label}
                   count={facet.count}
                   active={on}
-                  href={href({ city: on ? "" : facet.value })}
+                  href={`${href({ when: on ? null : facet.value, date: "" })}#karte`}
                 />
-              );
+              ) : null;
             })}
-          </ChipRow>
-        )}
-        {view.sounds.length > 0 && (
-          <ChipRow id="filter-sound" label="Sound">
             {view.sounds.map((facet) => {
               const on = facet.value === filters.sound;
               return (
@@ -351,179 +419,179 @@ export default async function Discovery({
                   count={facet.count}
                   active={on}
                   swatch={genreFamilyBySlug(facet.value)?.motif}
-                  href={href({ sound: on ? null : facet.value, genre: "" })}
+                  href={`${href({ sound: on ? null : facet.value, genre: "" })}#karte`}
                 />
               );
             })}
           </ChipRow>
-        )}
-        {view.genres.length > 1 && (
-          <ChipRow id="filter-genre" label="Genre">
-            {view.genres.map((facet) => {
-              const on = facet.value === filters.genre;
-              return (
-                <Chip
-                  key={facet.value}
-                  label={facet.label}
-                  count={facet.count}
-                  active={on}
-                  href={href({ genre: on ? "" : facet.value })}
-                />
-              );
-            })}
-          </ChipRow>
-        )}
-      </section>
-
-      <section
-        id="nights"
-        className="listing-section"
-        aria-labelledby="nights-title"
-      >
-        <h2 id="nights-title" className="visually-hidden">
-          {copy(locale, "Programm", "Listings")}
-        </h2>
-        {ignored.length > 0 && (
-          <p className="filter-error" role="alert">
-            {copy(
-              locale,
-              `Diese Filter waren ungültig und werden ignoriert: ${ignored.map((key) => filterLabel(key, locale)).join(", ")}.`,
-              `These filters weren’t valid and are ignored: ${ignored.map((key) => filterLabel(key, locale)).join(", ")}.`,
-            )}
-          </p>
-        )}
-        {active.length > 0 && (
-          <div className="active-filters">
-            <span className="active-label" id="active-filters-label">
-              {copy(locale, "Aktive Filter", "Active filters")}
-            </span>
-            <ul aria-labelledby="active-filters-label">
-              {active.map((item) => (
-                <li key={item.key}>
-                  <Link
-                    href={item.href}
-                    scroll={false}
-                    aria-label={copy(
-                      locale,
-                      `Filter ${item.label} entfernen`,
-                      `Remove filter ${item.label}`,
-                    )}
-                  >
-                    {item.label} <Icon name="close" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            {active.length > 1 && (
-              <Link
-                className="active-clear"
-                href={localizePath("/", locale)}
-                scroll={false}
-              >
-                {copy(locale, "Alle löschen", "Clear all")}
-              </Link>
-            )}
-          </div>
-        )}
-        {shown.length ? (
-          <>
-            <EventDays
-              events={shown.map((listing) => listing.event)}
-              catalog={catalog}
-              locale={locale}
-              now={requestNow}
-            />
-            {cityPage && view.cityName && (
-              <p className="city-page-link">
-                <Link href={localizePath(cityPage, locale)}>
-                  {copy(
-                    locale,
-                    `Alle Clubs und DJs in ${view.cityName}`,
-                    `All venues and DJs in ${view.cityName}`,
-                  )}
-                </Link>
+        }
+        list={
+          <section
+            id="nights"
+            className="listing-section"
+            aria-labelledby="nights-title"
+          >
+            <h2 id="nights-title" className="visually-hidden">
+              {copy(locale, "Programm", "Listings")}
+            </h2>
+            {ignored.length > 0 && (
+              <p className="filter-error" role="alert">
+                {copy(
+                  locale,
+                  `Diese Filter waren ungültig und werden ignoriert: ${ignored.map((key) => filterLabel(key, locale)).join(", ")}.`,
+                  `These filters weren’t valid and are ignored: ${ignored.map((key) => filterLabel(key, locale)).join(", ")}.`,
+                )}
               </p>
             )}
-            {nextRow && (
-              <div className="more-row">
-                <Link
-                  className="button button-outline more-link"
-                  href={`${href({ limit: shown.length + pageSize })}#e-${nextRow.event.slug}`}
-                  scroll={false}
-                >
-                  {copy(locale, "Weitere Nächte anzeigen", "Show more nights")}{" "}
-                  <span className="chip-count">
-                    {restNights
-                      ? copy(
+            {active.length > 0 && (
+              <div className="active-filters">
+                <span className="active-label" id="active-filters-label">
+                  {copy(locale, "Aktive Filter", "Active filters")}
+                </span>
+                <ul aria-labelledby="active-filters-label">
+                  {active.map((item) => (
+                    <li key={item.key}>
+                      <Link
+                        href={item.href}
+                        scroll={false}
+                        aria-label={copy(
                           locale,
-                          `noch ${restNights} ${nightsWord(restNights, locale)}`,
-                          `${restNights} more ${nightsWord(restNights, locale)}`,
-                        )
-                      : copy(
-                          locale,
-                          `noch ${rest.length} abgesagt`,
-                          `${rest.length} more cancelled`,
+                          `Filter ${item.label} entfernen`,
+                          `Remove filter ${item.label}`,
                         )}
-                  </span>
-                </Link>
+                      >
+                        {item.label} <Icon name="close" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                {active.length > 1 && (
+                  <Link
+                    className="active-clear"
+                    href={localizePath("/", locale)}
+                    scroll={false}
+                  >
+                    {copy(locale, "Alle löschen", "Clear all")}
+                  </Link>
+                )}
               </div>
             )}
-          </>
-        ) : past ? (
-          <div className="empty-state">
-            <h3>
-              {copy(
-                locale,
-                `${dateText} liegt in der Vergangenheit`,
-                `${dateText} is in the past`,
-              )}
-            </h3>
-            <p>
-              {copy(
-                locale,
-                "EVRYVIBE zeigt nur kommende Nächte.",
-                "EVRYVIBE only lists upcoming nights.",
-              )}
-            </p>
-            <Link className="button button-outline" href={href({ date: "" })}>
-              {copy(locale, "Kommende Nächte anzeigen", "Show upcoming nights")}
-            </Link>
-          </div>
-        ) : (
-          <div className="empty-state">
-            <h3>
-              {filtered
-                ? copy(
+            {shown.length ? (
+              <>
+                <EventDays
+                  events={shown.map((listing) => listing.event)}
+                  catalog={catalog}
+                  locale={locale}
+                  now={requestNow}
+                />
+                {cityPage && view.cityName && (
+                  <p className="city-page-link">
+                    <Link href={localizePath(cityPage, locale)}>
+                      {copy(
+                        locale,
+                        `Alle Clubs und DJs in ${view.cityName}`,
+                        `All venues and DJs in ${view.cityName}`,
+                      )}
+                    </Link>
+                  </p>
+                )}
+                {nextRow && (
+                  <div className="more-row">
+                    <Link
+                      className="button button-outline more-link"
+                      href={`${href({ limit: shown.length + pageSize })}#e-${nextRow.event.slug}`}
+                      scroll={false}
+                    >
+                      {copy(
+                        locale,
+                        "Weitere Nächte anzeigen",
+                        "Show more nights",
+                      )}{" "}
+                      <span className="chip-count">
+                        {restNights
+                          ? copy(
+                              locale,
+                              `noch ${restNights} ${nightsWord(restNights, locale)}`,
+                              `${restNights} more ${nightsWord(restNights, locale)}`,
+                            )
+                          : copy(
+                              locale,
+                              `noch ${rest.length} abgesagt`,
+                              `${rest.length} more cancelled`,
+                            )}
+                      </span>
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : past ? (
+              <div className="empty-state">
+                <h3>
+                  {copy(
                     locale,
-                    "Keine Nächte für diese Filter",
-                    "No nights match these filters",
-                  )
-                : copy(locale, "Keine kommenden Nächte", "No upcoming nights")}
-            </h3>
-            <p>
-              {filtered
-                ? copy(
-                    locale,
-                    "Entferne einen Filter oder wähle ein anderes Datum, eine andere Stadt oder einen anderen Sound.",
-                    "Remove a filter or try another date, city or sound.",
-                  )
-                : copy(
-                    locale,
-                    "Es sind noch keine kommenden Events veröffentlicht.",
-                    "No upcoming events have been published yet.",
+                    `${dateText} liegt in der Vergangenheit`,
+                    `${dateText} is in the past`,
                   )}
-            </p>
-            {filtered && (
-              <Link
-                className="button button-outline"
-                href={localizePath("/", locale)}
-              >
-                {copy(locale, "Alle Nächte anzeigen", "Show all nights")}
-              </Link>
+                </h3>
+                <p>
+                  {copy(
+                    locale,
+                    "EVRYVIBE zeigt nur kommende Nächte.",
+                    "EVRYVIBE only lists upcoming nights.",
+                  )}
+                </p>
+                <Link
+                  className="button button-outline"
+                  href={href({ date: "" })}
+                >
+                  {copy(
+                    locale,
+                    "Kommende Nächte anzeigen",
+                    "Show upcoming nights",
+                  )}
+                </Link>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <h3>
+                  {filtered
+                    ? copy(
+                        locale,
+                        "Keine Nächte für diese Filter",
+                        "No nights match these filters",
+                      )
+                    : copy(
+                        locale,
+                        "Keine kommenden Nächte",
+                        "No upcoming nights",
+                      )}
+                </h3>
+                <p>
+                  {filtered
+                    ? copy(
+                        locale,
+                        "Entferne einen Filter oder wähle ein anderes Datum, eine andere Stadt oder einen anderen Sound.",
+                        "Remove a filter or try another date, city or sound.",
+                      )
+                    : copy(
+                        locale,
+                        "Es sind noch keine kommenden Events veröffentlicht.",
+                        "No upcoming events have been published yet.",
+                      )}
+                </p>
+                {filtered && (
+                  <Link
+                    className="button button-outline"
+                    href={localizePath("/", locale)}
+                  >
+                    {copy(locale, "Alle Nächte anzeigen", "Show all nights")}
+                  </Link>
+                )}
+              </div>
             )}
-          </div>
-        )}
-      </section>
+          </section>
+        }
+      />
     </main>
   );
 }

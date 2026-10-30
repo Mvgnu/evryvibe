@@ -1,0 +1,993 @@
+/* ==========================================================================
+   Night map: the discovery page as one surface. Phones: heading, the map
+   stage, then search, filters and the programme. Wide screens: the
+   programme on the left, the map sticky on the right. The stage can open
+   full screen. Map colours live in src/lib/map-themes.ts.
+   ========================================================================== */
+
+:root {
+  /* Height of the player docked at the bottom on phones. */
+  --dock-h: 186px;
+}
+:root,
+:root[data-theme="dark"] {
+  --map-ground: #070707;
+}
+:root[data-theme="light"] {
+  --map-ground: #f3f4f4;
+}
+
+.night-explorer {
+  --header-h: 57px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "head" "stage" "search" "filters" "list";
+}
+.ne-head {
+  grid-area: head;
+}
+.ne-stage {
+  grid-area: stage;
+}
+.ne-search {
+  grid-area: search;
+}
+.ne-filters {
+  grid-area: filters;
+}
+.ne-list {
+  grid-area: list;
+  min-width: 0;
+}
+.night-explorer .discovery-head {
+  display: block;
+  padding: 14px 0 12px;
+}
+.discovery-search {
+  margin-inline: var(--page-inset);
+  padding: 14px 0 10px;
+}
+.home-reels-short {
+  display: none;
+}
+@media (max-width: 999px) {
+  /* One compact row above the map: title and count, Reels beside them. */
+  .night-explorer .home-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title reels" "count reels";
+    align-items: center;
+    column-gap: 12px;
+  }
+  .night-explorer .home-heading h1 {
+    grid-area: title;
+  }
+  .night-explorer .home-count {
+    grid-area: count;
+  }
+  .night-explorer .home-reels-link {
+    grid-area: reels;
+  }
+  .night-explorer .discovery-head {
+    padding: 12px 0 10px;
+  }
+  .home-reels-long {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .home-reels-short {
+    display: inline;
+  }
+}
+
+/* Without JavaScript nothing on the map can work; the programme stays. */
+:root:not([data-js]) .ne-stage {
+  display: none;
+}
+
+/* ── The stage ── */
+.ne-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: clamp(440px, calc(100svh - 136px), 760px);
+  border-block: 1px solid var(--ink);
+  background: var(--map-ground);
+  scroll-margin-top: 0;
+}
+.nm-canvas {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 160px;
+  overflow: hidden;
+  background: var(--map-ground);
+}
+.nm-canvas > .nm-map {
+  position: absolute;
+  inset: 0;
+}
+.nm-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font: 700 12px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Tools and legend, top left; MapLibre's zoom buttons sit top right and the
+   tile credit bottom right. */
+.nm-hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  max-width: calc(100% - 74px);
+  pointer-events: none;
+}
+.nm-hud > * {
+  pointer-events: auto;
+}
+.nm-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.nm-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: 700 11px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.nm-tool .ui-icon {
+  font-size: 16px;
+}
+/* Compact tools retain their accessible text and expose labels on hover. */
+.nm-tool {
+  justify-content: center;
+  width: 44px;
+  padding: 0;
+}
+.nm-tool .ui-icon {
+  width: 20px;
+  height: 20px;
+}
+.nm-tool-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.nm-tool:hover,
+.nm-tool:focus-visible {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.nm-tool:disabled {
+  opacity: 0.6;
+}
+.nm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 6px 9px;
+  list-style: none;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 11px/1.4 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.nm-legend:empty {
+  display: none;
+}
+/* Phones keep the map clear: the key moves into the panel's count line. */
+.nm-key-short {
+  display: none;
+}
+@media (max-width: 699px) {
+  .nm-legend-map {
+    display: none;
+  }
+  .nm-panel .nm-panel-title p {
+    white-space: normal;
+  }
+  .nm-key-short {
+    display: inline;
+  }
+  .nm-key-short .nm-key {
+    width: 9px;
+    height: 9px;
+    vertical-align: -1px;
+  }
+}
+.nm-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.nm-demo {
+  color: var(--danger);
+}
+.nm-key {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.nm-key-venue {
+  background: var(--lime);
+  box-shadow: 0 0 0 1.5px var(--map-ground);
+  outline: 1px solid var(--ink);
+}
+.nm-key-city {
+  border: 2px solid var(--lime);
+  background: var(--map-ground);
+}
+:root[data-theme="light"] .nm-key-city,
+:root[data-theme="light"] .nm-key-tonight {
+  border-color: var(--ink);
+}
+.nm-key-tonight {
+  border: 2px solid var(--lime);
+  outline: 2px solid color-mix(in srgb, var(--lime) 40%, transparent);
+  outline-offset: 2px;
+}
+.nm-key-liked {
+  border: 1.5px solid var(--ink);
+}
+
+.nm-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  z-index: 3;
+  translate: -50% 0;
+  max-width: calc(100% - 24px);
+  padding: 10px 14px;
+  background: var(--lime);
+  color: var(--on-lime);
+  font: 700 12px/1.3 var(--font-mono);
+  text-align: center;
+}
+/* The live region stays in place so a new message is announced. */
+.nm-toast:empty {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* MapLibre's own controls in the house style: square, ruled, no shadow. */
+.nm-canvas .maplibregl-ctrl-top-right {
+  top: 4px;
+  right: 4px;
+}
+.nm-canvas .maplibregl-ctrl-group {
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: none;
+}
+.nm-canvas .maplibregl-ctrl-group button {
+  width: 44px;
+  height: 44px;
+}
+.nm-canvas .maplibregl-ctrl-group button + button {
+  border-top-color: var(--line);
+}
+:root[data-theme="dark"] .nm-canvas .maplibregl-ctrl-icon {
+  filter: invert(1);
+}
+.nm-canvas .maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  color: var(--muted);
+  font: 11px/1.4 var(--font-body);
+}
+.nm-canvas .maplibregl-ctrl-attrib a {
+  color: var(--ink);
+}
+:root[data-theme="dark"] .nm-canvas .maplibregl-ctrl-attrib {
+  background: #141414;
+}
+.nm-canvas .maplibregl-cooperative-gesture-screen {
+  background: color-mix(in srgb, #000 62%, transparent);
+  color: #f1f1ec;
+  font: 700 13px/1.4 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Tonight's points pulse; the visitor's own position is a plain ring. */
+/* MapLibre positions the marker element absolutely, which also anchors the
+   rings drawn by ::before and ::after. */
+.nm-pulse {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+.nm-pulse-city {
+  width: 30px;
+  height: 30px;
+}
+.nm-pulse::before,
+.nm-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid #d8ff00;
+  border-radius: 50%;
+  opacity: 0;
+  animation: nm-pulse 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+.nm-pulse::after {
+  animation-delay: 1.3s;
+}
+:root[data-theme="light"] .nm-pulse::before,
+:root[data-theme="light"] .nm-pulse::after {
+  border-color: #0a0a0a;
+}
+@keyframes nm-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(3.6);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nm-pulse::before {
+    animation: none;
+    transform: scale(1.8);
+    opacity: 0.6;
+  }
+  .nm-pulse::after {
+    display: none;
+  }
+}
+.nm-you {
+  width: 18px;
+  height: 18px;
+  border: 4px solid #0a0a0a;
+  border-radius: 50%;
+  background: #ffffff;
+  outline: 2px solid #ffffff;
+  pointer-events: none;
+}
+
+/* ── The strip of nights under the map ── */
+.nm-panel {
+  flex: 0 0 auto;
+  padding: 10px 0 12px;
+  border-top: 1px solid var(--ink);
+  background: var(--paper);
+}
+.nm-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 10px;
+}
+.nm-panel-title {
+  min-width: 0;
+}
+.nm-panel-title h2 {
+  overflow: hidden;
+  font-size: 22px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nm-panel-title p {
+  overflow: hidden;
+  margin-top: 4px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--muted);
+  font: 600 11px/1.3 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.nm-panel-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+.nm-listen-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 11px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.nm-listen-all.is-on {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.nm-listen-all:hover:not(:disabled) {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.nm-listen-all:disabled {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: default;
+}
+.nm-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 18px;
+}
+.nm-icon-button:hover {
+  border-color: var(--ink);
+}
+.nm-icon-button[aria-pressed="true"] {
+  color: var(--signal);
+}
+
+.nm-strip {
+  display: grid;
+  grid-auto-columns: min(86%, 340px);
+  grid-auto-flow: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0 12px 2px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  list-style: none;
+  scroll-padding-inline: 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.nm-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  scroll-snap-align: start;
+}
+.nm-card:hover {
+  border-color: var(--ink);
+}
+.nm-card.is-playing {
+  border-color: var(--lime);
+}
+.nm-card-art {
+  width: 56px;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+.nm-card-art .artwork,
+.nm-card-art .artwork-fallback {
+  width: 100%;
+  height: 100%;
+}
+.nm-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.nm-card-when {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 700 12px/1.3 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.nm-card.is-tonight .nm-card-when time {
+  color: var(--signal);
+}
+.nm-card-distance {
+  flex: 0 0 auto;
+  color: var(--muted);
+}
+.nm-card-title {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nm-card-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.nm-card-title a:hover {
+  text-decoration: none;
+}
+.nm-card:hover .nm-card-title a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.nm-card-lineup,
+.nm-card-place,
+.nm-card-taste {
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nm-card-place {
+  color: var(--muted);
+  font-size: 12px;
+}
+.nm-card-genres {
+  overflow: hidden;
+  color: var(--muted);
+  font: 600 11px/1.4 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nm-card-approx {
+  color: var(--ink);
+}
+.nm-card-taste {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--signal);
+  font: 700 11px/1.4 var(--font-mono);
+  text-transform: uppercase;
+}
+.nm-card-actions {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.nm-card-listen,
+.nm-card-tickets {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font: 700 11px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.nm-card-listen:hover {
+  border-color: var(--ink);
+}
+.nm-card.is-playing .nm-card-listen {
+  border-color: var(--lime);
+}
+.nm-card-tickets {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: var(--on-lime);
+}
+.nm-card-tickets:hover {
+  border-color: #c3e600;
+  background: #c3e600;
+  text-decoration: none;
+}
+.nm-more {
+  display: grid;
+  scroll-snap-align: start;
+}
+.nm-more a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px dashed var(--line);
+  font: 700 12px/1.3 var(--font-mono);
+  text-transform: uppercase;
+}
+.nm-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  min-height: 112px;
+  padding: 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.nm-unmapped {
+  margin: 8px 12px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ── The player ── */
+.nm-dock {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--ink);
+  background: var(--surface);
+}
+.nm-dock-bar {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-areas: "play kicker buttons" "play now buttons";
+  align-items: center;
+  column-gap: 10px;
+  padding: 8px 10px;
+}
+.nm-dock-play {
+  grid-area: play;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: var(--lime);
+  color: var(--on-lime);
+  font-size: 18px;
+}
+.nm-dock-kicker {
+  grid-area: kicker;
+  overflow: hidden;
+  color: var(--muted);
+  font: 700 11px/1.3 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* One 44px target: the DJ, the playing upload and their night. */
+.nm-dock-now {
+  grid-area: now;
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  text-align: left;
+}
+.nm-dock-dj {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.nm-dock-name {
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+.nm-dock-track {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+.nm-dock-night {
+  overflow: hidden;
+  color: var(--signal);
+  font: 600 12px/1.4 var(--font-mono);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nm-dock-now:hover .nm-dock-name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.nm-dock-buttons {
+  grid-area: buttons;
+  display: flex;
+  gap: 4px;
+}
+.nm-dock-frame iframe {
+  display: block;
+  width: 100%;
+  height: 116px;
+  border: 0;
+}
+.nm-dock-consent {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+.nm-dock-copy p:last-child {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.nm-dock-copy a {
+  text-decoration: underline;
+}
+.nm-dock-choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.nm-dock-choices .button {
+  min-height: 44px;
+  padding: 10px 14px;
+}
+
+/* ── Full screen ── */
+.nm-topbar {
+  display: none;
+}
+.night-explorer.is-expanded .ne-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  height: 100dvh;
+  border: 0;
+}
+.night-explorer.is-expanded .nm-topbar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+}
+.nm-back {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 11px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.nm-topbar-filters {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.nm-topbar-filters .filter-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+.nm-topbar-filters .filter-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Phones and tablets: the player stays on screen while the list scrolls ── */
+@media (max-width: 999px) {
+  .nm-dock {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 85;
+    max-height: var(--dock-h);
+  }
+  .nm-dock-consent {
+    max-height: none;
+  }
+  body:has(.night-explorer.is-listening) {
+    padding-bottom: var(--dock-h);
+  }
+  /* Listening: map, strip and player share the first screen. */
+  .night-explorer.is-listening:not(.is-expanded) .ne-stage {
+    height: max(340px, calc(100svh - 136px - var(--dock-h)));
+  }
+  .night-explorer.is-expanded.is-listening .ne-stage {
+    padding-bottom: var(--dock-h);
+  }
+}
+@media (max-width: 520px) {
+  :root {
+    --dock-h: 178px;
+  }
+  .nm-panel-title h2 {
+    font-size: 19px;
+  }
+  .nm-listen-all {
+    padding: 0 11px;
+  }
+  /* The SoundCloud widget below carries play and pause on phones. */
+  .nm-dock-play {
+    display: none;
+  }
+  .nm-dock-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "kicker buttons" "now buttons";
+    column-gap: 6px;
+    padding: 6px 8px 6px 10px;
+  }
+  .nm-dock-buttons {
+    gap: 0;
+  }
+  .nm-dock-buttons .nm-icon-button {
+    border-color: transparent;
+  }
+  .nm-dock-name {
+    font-size: 19px;
+  }
+  .nm-dock-track {
+    display: none;
+  }
+  .nm-dock-frame iframe {
+    height: 104px;
+  }
+}
+/* Small phones: the Reels link keeps its name but shows only its icon. */
+@media (max-width: 370px) {
+  /* Too narrow for five buttons beside the name: they get their own row. */
+  :root {
+    --dock-h: 226px;
+  }
+  .nm-dock-bar {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "kicker" "now" "buttons";
+  }
+  .nm-dock-buttons {
+    justify-content: space-between;
+  }
+}
+@media (max-width: 360px) {
+  .night-explorer .home-reels-link {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+  }
+  .night-explorer .home-reels-short {
+    display: none;
+  }
+  .night-explorer .home-heading h1 {
+    font-size: 32px;
+  }
+  .nm-listen-all {
+    padding: 0 8px;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ── Wide screens: programme left, map right ── */
+@media (min-width: 1000px) {
+  body:has(.night-explorer) .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--paper);
+  }
+  .night-explorer {
+    --header-h: 73px;
+    grid-template-columns: minmax(0, min(46vw, 760px)) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "head stage"
+      "search stage"
+      "filters stage"
+      "list stage";
+  }
+  .night-explorer .discovery-head,
+  .night-explorer .discovery-search,
+  .night-explorer .filter-panel,
+  .night-explorer .listing-section {
+    margin-inline: var(--gutter) 32px;
+  }
+  .night-explorer .discovery-head {
+    padding-top: 24px;
+  }
+  .ne-stage {
+    position: sticky;
+    top: var(--header-h);
+    align-self: start;
+    height: calc(100svh - var(--header-h));
+    border-block: 0;
+    border-left: 1px solid var(--ink);
+  }
+  .night-explorer .event-day-heading {
+    top: var(--header-h);
+  }
+  .night-explorer .listing-section {
+    scroll-margin-top: var(--header-h);
+  }
+}
+/* The programme column is narrow: days head their rows instead of sitting in
+   a side column. */
+@media (min-width: 1100px) {
+  .night-explorer .event-days {
+    gap: 28px;
+  }
+  .night-explorer .event-day {
+    display: block;
+  }
+  .night-explorer .event-day-heading {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 0 8px;
+    border-top: 0;
+    border-bottom: 1px solid var(--ink);
+    background: var(--paper);
+  }
+  .night-explorer .event-day-heading h3 {
+    flex-direction: row;
+    gap: 2px 12px;
+  }
+  .night-explorer .event-day .ev-rows {
+    border-top: 0;
+  }
+  .night-explorer .event-day .ev-row:first-child {
+    padding-top: 14px;
+  }
+}

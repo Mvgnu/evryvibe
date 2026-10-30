@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { REELS_PAGE_ENABLED } from "@/core/media-features";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { copy, DemoNotice } from "@/components/catalog-ui";
@@ -32,6 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ReelsPage() {
+  if (!REELS_PAGE_ENABLED) notFound();
   const [catalog, locale] = await Promise.all([getCatalog(), requestLocale()]);
   const reels = buildReels(
     {

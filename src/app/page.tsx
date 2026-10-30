@@ -1,3 +1,4 @@
+import { REELS_PAGE_ENABLED } from "@/core/media-features";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { genreFamilyBySlug } from "@/core/genres";
@@ -208,22 +209,24 @@ export default async function Discovery({
                       `${view.total} upcoming ${nightsWord(view.total, locale)}`,
                     )}
               </p>
-              <Link
-                className="home-reels-link"
-                href={localizePath("/reels", locale)}
-              >
-                <Icon name="play" />
-                <span className="home-reels-long">
-                  {copy(
-                    locale,
-                    "Reels: DJs aus deiner Nähe hören",
-                    "Reels: hear DJs near you",
-                  )}
-                </span>
-                <span className="home-reels-short" aria-hidden="true">
-                  Reels
-                </span>
-              </Link>
+              {REELS_PAGE_ENABLED && (
+                <Link
+                  className="home-reels-link"
+                  href={localizePath("/reels", locale)}
+                >
+                  <Icon name="play" />
+                  <span className="home-reels-long">
+                    {copy(
+                      locale,
+                      "Reels: DJs aus deiner Nähe hören",
+                      "Reels: hear DJs near you",
+                    )}
+                  </span>
+                  <span className="home-reels-short" aria-hidden="true">
+                    Reels
+                  </span>
+                </Link>
+              )}
             </div>
           </section>
         }

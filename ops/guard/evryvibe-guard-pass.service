@@ -1,0 +1,18 @@
+# /etc/systemd/system/evryvibe-guard-pass.service
+[Unit]
+Description=EVRYVIBE crawler guard button issuer (CG1): POST /_evg/pass, independent of the detector
+After=network.target
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -I /usr/local/lib/evryvibe-guard/guard.py pass-server
+Restart=always
+RestartSec=3
+MemoryMax=64M
+CPUQuota=10%
+ProtectSystem=full
+ReadWritePaths=/var/lib/evryvibe-guard
+ProtectHome=true
+PrivateTmp=true
+UMask=0027
+[Install]
+WantedBy=multi-user.target

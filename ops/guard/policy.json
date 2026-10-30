@@ -1,0 +1,13 @@
+{
+  "search_path": "/search",
+  "filter_params": [
+    "q",
+    "when",
+    "date",
+    "city",
+    "sound",
+    "genre",
+    "limit",
+    "month"
+  ]
+}

@@ -189,15 +189,14 @@ it("publishes only catalogue detail routes in both languages with matching hrefl
   ];
   const indexableGenres = genres.filter(isIndexableGenre);
   // Home, four legal pages, city index, four fixture cities, qualifying
-  // months, the DJ directory, the genre index, indexable genre pages, Reels
-  // (fixture DJs with SoundCloud have upcoming nights).
+  // months, the DJ directory, genre index and indexable genre pages.
+  // Reels remains disabled even when booked SoundCloud DJs exist.
   expect(indexableGenres.length).toBeGreaterThan(0);
   expect(entries).toHaveLength(
     2 *
       (10 +
         monthCount +
         2 +
-        1 +
         indexableGenres.length +
         demoCatalog.events.filter((event) =>
           demoCatalog.venues.some(
@@ -212,7 +211,7 @@ it("publishes only catalogue detail routes in both languages with matching hrefl
   const urls = entries.map((entry) => entry.url);
   expect(urls).toContain("https://evryvibe.com/en/cities/muenchen");
   expect(urls).toContain("https://evryvibe.com/djs");
-  expect(urls).toContain("https://evryvibe.com/en/reels");
+  expect(urls).not.toContain("https://evryvibe.com/en/reels");
   expect(urls).toContain("https://evryvibe.com/en/genres");
   // A thin genre page (under five DJs, no upcoming night) stays out.
   const thin = genres.find((item) => !isIndexableGenre(item));

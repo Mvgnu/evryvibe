@@ -467,3 +467,7 @@ no player spacer. Clicking through DJs keeps the map's height unchanged.
 The local proposed map player lives in the root layout and keeps its iframe
 through internal navigation and history back/forward; it remains disabled
 publicly. Reels requires an explicit start even with saved settings.
+
+Reels is temporarily unavailable (`REELS_PAGE_ENABLED=false`): `/reels` and
+`/en/reels` return404; header/footer/home CTA and sitemap entries are gated off.
+The route, components and styles are retained for future review.

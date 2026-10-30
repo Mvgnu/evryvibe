@@ -1,0 +1,10 @@
+# /etc/systemd/system/evryvibe-guard-watchdog.service
+[Unit]
+Description=EVRYVIBE crawler guard watchdog (CG1): families off when the detector stops
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I /usr/local/lib/evryvibe-guard/guard.py watchdog
+ProtectSystem=full
+ReadWritePaths=/etc/nginx/evryvibe-guard /var/lib/evryvibe-guard
+ProtectHome=true
+PrivateTmp=true

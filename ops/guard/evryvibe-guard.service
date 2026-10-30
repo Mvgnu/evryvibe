@@ -1,0 +1,22 @@
+# /etc/systemd/system/evryvibe-guard.service
+[Unit]
+Description=EVRYVIBE crawler guard detector (CG1)
+After=nginx.service evryvibe.service
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -I /usr/local/lib/evryvibe-guard/guard.py run
+Restart=always
+RestartSec=10
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+MemoryHigh=96M
+MemoryMax=160M
+CPUQuota=25%
+ProtectSystem=full
+ReadWritePaths=/etc/nginx/evryvibe-guard /var/lib/evryvibe-guard
+ProtectHome=true
+PrivateTmp=true
+UMask=0027
+[Install]
+WantedBy=multi-user.target

@@ -20,7 +20,12 @@ export function Icon({
     | "play"
     | "wave"
     | "heart"
-    | "skip";
+    | "skip"
+    | "pause"
+    | "expand"
+    | "locate"
+    | "thumb-down"
+    | "globe";
   className?: string;
 }) {
   const paths = {
@@ -42,6 +47,13 @@ export function Icon({
     heart:
       "M12 20.5S3.5 15.3 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 6.1-8.5 11.3-8.5 11.3Z",
     skip: "M5 5v14l10-7Zm14 0v14",
+    pause: "M7 5h3.5v14H7zm6.5 0H17v14h-3.5z",
+    expand: "M4 9V4h5M20 9V4h-5M4 15v5h5m11-5v5h-5",
+    locate: "M12 2v3m0 14v3M2 12h3m14 0h3",
+    globe:
+      "M3 12h18M12 3c2.6 2.5 3.9 5.5 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.5-3.9-9S9.4 5.5 12 3Z",
+    "thumb-down":
+      "M7 13V4H4v9h3Zm0 0 4.5 7a2 2 0 0 0 2.4-2.6L13 14h5.4a2 2 0 0 0 2-2.4l-1.3-6A2 2 0 0 0 17.2 4H7",
   };
   return (
     <svg
@@ -50,7 +62,11 @@ export function Icon({
       width="1em"
       height="1em"
       viewBox="0 0 24 24"
-      fill={name === "play" || name === "skip" ? "currentColor" : "none"}
+      fill={
+        name === "play" || name === "skip" || name === "pause"
+          ? "currentColor"
+          : "none"
+      }
       stroke="currentColor"
       strokeWidth={name === "asterisk" ? 2.5 : name === "wave" ? 2.2 : 1.8}
       strokeLinecap="round"
@@ -60,6 +76,9 @@ export function Icon({
     >
       <path d={paths[name]} />
       {name === "sun" && <circle cx="12" cy="12" r="4" />}
+      {(name === "locate" || name === "globe") && (
+        <circle cx="12" cy="12" r={name === "globe" ? 9 : 6} />
+      )}
       {name === "settings" && (
         <>
           <circle cx="12" cy="7" r="2" />

@@ -21,11 +21,14 @@ consumes:
     core.reconciliation.publicBioFor,
     core.dj-directory,
     core.structured-data,
+    core.night-map,
+    core.reels.taste,
     db.catalog,
   ]
 verification:
   typecheck: npm run check
   lint: npm run lint
+  unit: npx vitest run tests/night-map.test.ts
   build: npm run build
   browser: npm run test:e2e
 bar:
@@ -74,7 +77,7 @@ event titles remain intact. A fine dark keyline on the white title lettering
 keeps it readable where light motif shapes pass underneath, without hiding the
 artwork.
 
-Routes: `/` event discovery, `/reels` and `/keys` (see `reels.spec.md`), `/cities`, `/cities/[slug]`, `/events/[slug]`, `/venues/[slug]`, `/djs`, `/djs/[slug]`, `/genres`, `/genres/[slug]`. Other directory routes are added only when navigation needs them. Top navigation (Reels · Nächte · DJs · Städte) must lead to real destinations; on phones the header is one row, the wordmark leads home, "Reels" always stays and one more tab follows: "DJs" on DJ pages, otherwise "Städte" (below 360px only one tab: "DJs" or "Städte" on their own section, otherwise "Reels"). Reels, DJs, Genres and Keys are always in the footer. The home heading carries one lime "Reels" link. Use responsive layouts, keyboard focus, semantic controls, reduced-motion support, and descriptive page metadata.
+Routes: `/` event discovery (the night map beside the programme, see "Night map"), `/reels` and `/keys` (see `reels.spec.md`), `/cities`, `/cities/[slug]`, `/events/[slug]`, `/venues/[slug]`, `/djs`, `/djs/[slug]`, `/genres`, `/genres/[slug]`. Other directory routes are added only when navigation needs them. Top navigation (Reels · Nächte · DJs · Städte) must lead to real destinations; on phones the header is one row, the wordmark leads home, "Reels" always stays and one more tab follows: "DJs" on DJ pages, otherwise "Städte" (below 360px only one tab: "DJs" or "Städte" on their own section, otherwise "Reels"). Reels, DJs, Genres and Keys are always in the footer. The home heading carries one lime "Reels" link (on phones it reads just "Reels" and keeps its full accessible name). `/map` and `/en/map` redirect to the localized home with the same query and `#karte`, which opens the map full screen. Use responsive layouts, keyboard focus, semantic controls, reduced-motion support, and descriptive page metadata.
 
 City month routes `/cities/[slug]/YYYY-MM` exist only for a future month with
 scheduled nights. The base city page reads bilingual city editorial fields
@@ -348,6 +351,100 @@ and preserved canonical/indexing thresholds. A URL-shaped serialized dependency
 was observed in production; Google's exact discovery mechanism is unproven.
 
 
-## Map exploration preview
+## Night map
 
-The noindex `/map` and `/en/map` preview plots upcoming scheduled nights as city-level counts at approximate GeoNames city centres, never as venue coordinates. Cities without a known centre are named separately. Selecting a city opens a scrollable, dismissible map-anchored popup with flyer artwork and links to its events and city page. The map supports both locales and themes, and keeps tile-provider and GeoNames attribution visible. Demo inventory remains clearly fictional. The map is a separate preview; list filters are not yet shared with it.
+The map is not a separate screen: the home page is one surface where the
+map and the programme show the same nights. Code: `src/core/night-map.ts`
+(positions and grouping), `src/components/night-map-data.ts` (server-side
+card facts), `src/components/night-explorer.tsx` (layout, cards, player),
+`src/components/night-map-view.tsx` (MapLibre, loaded lazily),
+`src/lib/map-themes.ts` (the "Nachtkarte" theme), `src/app/night-map.css`.
+
+Layout. Phones: the heading row (H1, count, "Reels"), then the map stage
+filling the rest of the first screen, then search, filters and the list.
+From 1000px: the programme (heading, search, filters, list) in a left column
+and the stage sticky on the right under a sticky header. The stage is the
+map with a strip of night cards under it. "Vollbild" opens the stage over the
+whole viewport (the page behind is inert, `#karte` is set with
+`replaceState`, Escape or "Liste" closes it) with a compact date and sound
+chip row; those chips keep `#karte`. Without JavaScript the stage is hidden
+and the programme works as before.
+
+What is plotted. Exactly the scheduled nights of the current home filters
+(`q`, `when`/`date`, `city`, `sound`, `genre`; `limit` only pages the list).
+Cancelled listings stay in the list but are never a point or a count. A
+venue with stored coordinates (`latitude`, `longitude`, confirmed through the
+artist flow's OSM lookup) is a solid lime point at the club, labelled with
+its name. Any other venue falls back to its city's GeoNames centre and is a
+hollow ring labelled with the city, shared by all such venues of that city;
+cards, the panel and the legend say "Lage ≈" / "Ungefähr: Stadtmitte". A
+venue with neither stays off the map and the panel names it ("N Nächte ohne
+Kartenposition (…) – in der Liste"). 0,0 or half coordinates count as
+unknown. Points cluster up to zoom 10; a heat glow marks busy regions at low
+zoom; tonight's points (venue-local today, or started yesterday and still on)
+pulse (still under reduced motion).
+
+Interaction. Tapping a point selects it: the card strip shows that place's
+nights; an exact venue flies in with a tilted 3D view (zoom ≥ 15), an
+approximate ring only frames the city. Tapping a cluster zooms into it,
+tapping empty map clears the choice. Without a choice the strip lists the
+nights inside the visible area, soonest first (at most 30 cards, then a link
+to the list). Hovering a list row (fine pointers) rings its point; on touch
+screens the card in front of the strip rings its point. A city filter change
+frames its nights; other filter changes keep the view. On first load the map
+frames all filtered nights, or, without a city filter, the visitor's stored
+Reels place and radius. "In meiner Nähe" asks for the position once, never
+stores or sends it, shows it as a ring and frames the closest points within
+60 km, or says how far the closest one is. "Alle zeigen" frames everything.
+Cards: big mono date and time ("Heute · 23:00"), title (one link to the
+event, stretched over the card), up to three lineup names "+N", up to three
+genres, venue · city with "Lage ≈" when approximate, distance once the
+position is known ("≈" for city centres), a taste line, "Anhören" when a
+lineup DJ has a verified SoundCloud profile and lime "Tickets" when a ticket
+URL exists. Card titles are not headings.
+
+Listening. One SoundCloud widget for the page (`useSoundcloudPlayer`, shared
+with Reels, guarded against calls to a removed iframe). "Anhören · N DJs" in
+the panel plays the DJs of the nights in view (or of the chosen place),
+ordered by `rankListening`: the Reels taste first, then how soon they play,
+disliked DJs left out. A card's "Anhören" plays that lineup in billing order,
+then continues with the area. The player docks under the stage on wide
+screens and at the bottom of the viewport on phones (the page gets matching
+bottom padding) and stays while filters change. It shows the status, the DJ
+(link to the DJ page), the playing upload, the DJ's night (tap to select it on
+the map), "SoundCloud ↗", Like, Nicht meins, Nächster DJ and close. The
+playing DJ's night gets a lime ring, its card says "Läuft: …" and the map
+eases to it when it is off screen. A profile without public uploads is
+skipped after a short notice. Likes and dislikes are written to the Reels
+store (`evryvibe.reels.v1`, settings kept), so both surfaces learn together;
+points with a liked DJ get a thin outer ring and their cards name the DJ.
+Consent: nothing loads from SoundCloud before the SoundCloud choice is
+accepted. Unset or rejected, "Anhören" opens the dock with the disclosure,
+"SoundCloud laden und abspielen" (accepts SoundCloud only, then plays) and
+the plain "Auf SoundCloud anhören" profile link. Withdrawal removes the
+iframe.
+
+Map rules (itstiles.com, `tilesserver/docs/`). MapLibre 5.24.0, pmtiles
+4.3.0 and @protomaps/basemaps 5.7.2 stay pinned to itstiles' tested set; the
+archive URL is resolved from the manifest at runtime; `src/lib/itstiles.ts`
+and `ItstilesMap.tsx` stay copies of the guide. The theme hides POIs, house
+numbers, shields and one-way arrows, sets place names in wide-tracked
+capitals (Noto Sans Medium, the only hosted fonts besides Regular/Italic),
+extrudes buildings from zoom 14 and keeps label contrast ≥ 4.5:1 on both
+grounds (tested). Own layers are re-added after every style load; glow and
+heat sit under the basemap labels, points, counts and labels above them (the
+count claims its space so basemap names step aside). The attribution stays
+expanded and visible: "itstiles.com · Protomaps © OpenStreetMap" plus
+"GeoNames (CC BY 4.0)" for city centres. Map labels follow the page language.
+The map is created after hydration when the browser is idle, uses
+cooperative gestures inside the page and plain gestures full screen, and is
+removed on unmount (one `.maplibregl-map` after navigating away and back).
+Attribution strings must be first-party constants and popups are React,
+never `setHTML` (lint rule; maplibre-gl ≤ 6.4.0 has GHSA-jrc7-96c5-q579 in
+its attribution sanitizer).
+
+Known limitations: most venues have no stored coordinates yet, so most
+points are approximate city rings. Tiles come from one itstiles.com server
+(no SLA); if it is down the stage shows "Karte lädt …" and the cards still
+list the nights. SoundCloud's widget is light in both themes. Map interaction
+is not keyboard-complete (the cards and the list are the accessible path).

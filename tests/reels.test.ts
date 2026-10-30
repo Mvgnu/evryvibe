@@ -6,10 +6,12 @@ import {
   buildReels,
   likedNights,
   parseSound,
+  rankListening,
   rankReels,
   readReelState,
   statedBpm,
   statedKey,
+  tasteMatch,
   tasteOf,
   type ReelVote,
 } from "../src/core/reels";
@@ -269,5 +271,50 @@ describe("stored state", () => {
     expect(state.votes).toEqual([good]);
     expect(readReelState("nonsense")).toEqual({ settings: null, votes: [] });
     expect(addVote([good], { ...good, value: -1 })).toHaveLength(1);
+  });
+});
+
+describe("the same taste on the night map", () => {
+  it("marks nights with a liked DJ and nights whose genres lean liked", () => {
+    const taste = tasteOf([vote(hard.id, 1, ["Hard Techno"])]);
+    expect(tasteMatch({ djIds: [hard.id], genres: [] }, taste)).toBe("liked");
+    expect(
+      tasteMatch({ djIds: [far.id], genres: ["Hard Techno"] }, taste),
+    ).toBe("close");
+    // One like is not enough to call a sibling genre of its family "close".
+    expect(
+      tasteMatch({ djIds: [far.id], genres: ["Schranz"] }, taste),
+    ).toBeNull();
+    expect(tasteMatch({ djIds: [house.id], genres: [] }, taste)).toBeNull();
+  });
+
+  it("orders DJs to listen to by taste, then by how soon they play, without disliked DJs", () => {
+    const entry = (dj: typeof hard, genres: string[], days: number) => ({
+      dj: {
+        id: dj.id,
+        slug: dj.slug,
+        name: dj.name,
+        soundcloudUrl: dj.soundcloudUrl ?? "",
+      },
+      genres,
+      startsAt: new Date(now + days * 86_400_000).toISOString(),
+    });
+    const candidates = [
+      entry(house, ["Deep House"], 2),
+      entry(hard, ["Hard Techno"], 30),
+      entry(dub, ["Dub Techno"], 20),
+      entry(far, ["Techno"], 1),
+    ];
+    // No votes yet: the night this week comes first.
+    expect(
+      rankListening(candidates, [], now).map((item) => item.dj.id),
+    ).toEqual([far.id, house.id, dub.id, hard.id]);
+    const ranked = rankListening(
+      candidates,
+      [vote(hard.id, 1, ["Hard Techno"]), vote(house.id, -1, ["Deep House"])],
+      now,
+    ).map((item) => item.dj.id);
+    expect(ranked[0]).toBe(hard.id);
+    expect(ranked).not.toContain(house.id);
   });
 });

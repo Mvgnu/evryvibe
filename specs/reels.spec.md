@@ -8,12 +8,24 @@ paths:
       src/core/musical-key.ts,
       src/components/reels-feed.tsx,
       src/components/soundcloud-widget.ts,
+      src/components/soundcloud-player.tsx,
+      src/components/reel-storage.ts,
       src/app/reels/,
       src/app/keys/,
       tests/reels.test.ts,
       tests/musical-key.test.ts,
     ]
-exports: [buildReels, rankReels, parseSound, ReelsFeed, CAMELOT_KEYS]
+exports:
+  [
+    buildReels,
+    rankReels,
+    rankListening,
+    tasteMatch,
+    parseSound,
+    ReelsFeed,
+    useSoundcloudPlayer,
+    CAMELOT_KEYS,
+  ]
 consumes:
   [core.model, core.cities, core.genres, core.sound, db.catalog, media-consent]
 verification:
@@ -76,12 +88,32 @@ nights you are shown. Keys that mix together are listed top to bottom.
 - Upload score adds tag affinity and +1 for a stated key compatible with a
   liked key.
 
+## On the night map
+
+The home page's night map (`discovery.spec.md`, "Night map") is the second
+place to listen, by place instead of by feed. It uses the same parts:
+
+- `useSoundcloudPlayer` (`src/components/soundcloud-player.tsx`): the one
+  reused widget, with the same autoplay, "best upload first" and guarded
+  calls as the feed.
+- `rankListening(candidates, votes, now)`: one entry per DJ (their soonest
+  night on screen), ordered by `reelScore` plus how soon they play (+0.6
+  within 7 days, +0.3 within 14); disliked DJs are left out.
+- `tasteMatch(night, taste)`: "liked" when a liked DJ plays, "close" when
+  the night's genres score above 0.5 in `genreAffinity`; the map rings liked
+  nights and names the DJ on the card.
+- `src/components/reel-storage.ts`: one reader and writer of
+  `evryvibe.reels.v1`. A vote on the map is saved with the stored place
+  unchanged, so a like there reorders Reels and the other way round. The
+  stored place and radius frame the map on first load (without a city
+  filter).
+
 ## Data and privacy
 
 - Settings and up to 300 votes live in `localStorage` (`evryvibe.reels.v1`),
   parsed with Zod. Nothing is sent to the server or to a SoundCloud account.
   The position from "Mein Standort" is used once to pick a city and is not
-  stored.
+  stored; the map's "In meiner Nähe" likewise only moves the map.
 - The server stores no tracks. The widget's sound payload (title, link,
   genre, tags, artwork, description) is parsed in the browser.
 - Consent: nothing from SoundCloud loads before acceptance; withdrawal

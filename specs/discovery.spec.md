@@ -449,8 +449,12 @@ points are approximate city rings. Tiles come from one itstiles.com server
 list the nights. SoundCloud's widget is light in both themes. Map interaction
 is not keyboard-complete (the cards and the list are the accessible path).
 
-The night-card panel reserves a fixed 132px on phones/tablets and 280px on
-desktop in every selection and empty state. Mobile shows only the swipeable
-cards, without the panel heading or area listening button; per-event listening
+The night-card panel reserves a fixed 132px at every screen size in every
+selection and empty state. It shows only the swipeable cards, without the
+panel heading or area listening button; per-event listening
 and ticket actions stay at least 44px and sit beside the card facts. Ticket/listening buttons and taste rows cannot resize the map canvas:
 otherwise a viewport-edge venue can repeatedly enter/leave the visible bounds.
+
+SoundCloud embeds and widget API are disabled publicly. Existing provider consent
+cannot enable them. Profile/event links open SoundCloud externally; genre
+discovery permanently uses only outbound links, including in local previews.

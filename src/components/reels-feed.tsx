@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import {
   useCallback,
   useEffect,
@@ -165,6 +166,11 @@ export function ReelsFeed({ reels, locale }: Props) {
     setIndex(0);
   };
 
+  if (!SOUNDCLOUD_EMBEDS_ENABLED) return <section className="reels-intro">
+    <h1>Reels</h1><p>{t(locale, "SoundCloud-Embeds sind derzeit deaktiviert. Du kannst die Künstler direkt auf SoundCloud anhören.", "SoundCloud embeds are currently disabled. Listen to the artists directly on SoundCloud.")}</p>
+    <Link className="button" href={localizePath("/",locale)}>{t(locale, "Nächte entdecken", "Explore nights")}</Link>
+    <ul>{reels.slice(0,20).map(reel=><li key={reel.dj.id}><a href={reel.dj.soundcloudUrl} target="_blank" rel="noopener noreferrer">{reel.dj.name} · SoundCloud ↗</a></li>)}</ul>
+  </section>;
   if (phase === "loading")
     return <div className="reels-shell" aria-busy="true" />;
   if (phase === "setup")

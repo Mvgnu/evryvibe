@@ -8,6 +8,7 @@
 // the DJs of those nights, ordered by the visitor's Reels taste.
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { SOUNDCLOUD_EMBEDS_ENABLED } from "@/core/media-features";
 import {
   useCallback,
   useEffect,
@@ -1140,6 +1141,11 @@ function ListenDock({
       <Icon name="close" />
     </button>
   );
+  if (!SOUNDCLOUD_EMBEDS_ENABLED)
+    return <div className="nm-dock nm-dock-consent" role="region" aria-label={t(locale, "SoundCloud-Player", "SoundCloud player")}>
+      <p>{t(locale, "SoundCloud-Player derzeit deaktiviert.", "SoundCloud player currently disabled.")}</p>
+      <div className="nm-dock-choices"><a className="chip-button" href={dj.soundcloudUrl} target="_blank" rel="noopener noreferrer">{t(locale, "Auf SoundCloud anhören", "Listen on SoundCloud")} <Icon name="arrow-up-right" /></a>{closeButton}</div>
+    </div>;
   if (consent !== "accepted")
     return (
       <div
